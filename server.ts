@@ -454,8 +454,10 @@ app.get('/api/upload/status', (_req, res) => {
   return res.json({ cloudinaryEnabled: CLOUDINARY_ENABLED });
 });
 
-// MEDIA UPLOAD ROUTE (Cloudinary)
-// Accepts a base64 data URL and uploads it to Cloudinary, returning the hosted URL.
+// MEDIA UPLOAD ROUTE (Cloudinary or base64 fallback)
+// Accepts a base64 data URL. If Cloudinary is configured it uploads there and
+// returns the hosted URL. If not configured it returns the data URL directly so
+// the app still works end-to-end in local/dev without any cloud storage.
 app.post('/api/upload', authenticateToken, async (req: any, res: any) => {
   const { dataUrl, resourceType, folder } = req.body;
 
@@ -463,14 +465,15 @@ app.post('/api/upload', authenticateToken, async (req: any, res: any) => {
     return res.status(400).json({ error: 'A base64 data URL is required in "dataUrl"' });
   }
 
+  // ── Cloudinary not configured → fall back to returning the data URL directly ──
+  // This lets the app work fully in local dev / when env vars haven't been set yet.
+  // Images will be stored as base64 inside data.json (fine for dev; not for prod).
   if (!CLOUDINARY_ENABLED) {
-    console.error('[LoveLink] Upload attempted but CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET are not set.');
-    return res.status(503).json({
-      error: 'Photo uploads are not configured yet. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET in your Render environment variables.',
-      cloudinaryMissing: true,
-    });
+    console.warn('[LoveLink] Cloudinary not configured — returning data URL as-is (dev fallback).');
+    return res.json({ url: dataUrl, publicId: '' });
   }
 
+  // ── Cloudinary configured → upload and return the hosted CDN URL ──
   try {
     const result = await cloudinary.uploader.upload(dataUrl, {
       folder: folder || 'lovelink',

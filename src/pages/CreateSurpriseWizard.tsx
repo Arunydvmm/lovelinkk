@@ -615,9 +615,9 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
             </div>
 
             {cloudinaryEnabled === false && (
-              <div className="px-4 py-3 bg-amber-950/60 border border-amber-500/40 text-amber-300 text-xs rounded-xl space-y-1">
-                <p className="font-bold">⚠️ Cloudinary not configured</p>
-                <p>Photo uploads won't work until you set <code className="bg-black/30 px-1 rounded">CLOUDINARY_CLOUD_NAME</code>, <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_KEY</code>, and <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_SECRET</code> in your Render environment variables.</p>
+              <div className="px-4 py-3 bg-slate-800/80 border border-slate-600/40 text-slate-400 text-xs rounded-xl space-y-1">
+                <p className="font-semibold text-slate-300">ℹ️ Dev mode — images stored locally</p>
+                <p>Cloudinary is not configured. Uploads still work and images are saved as base64. For production, set <code className="bg-black/30 px-1 rounded">CLOUDINARY_CLOUD_NAME</code>, <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_KEY</code>, and <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_SECRET</code>.</p>
               </div>
             )}
 
@@ -806,9 +806,9 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
             </div>
 
             {cloudinaryEnabled === false && (
-              <div className="px-4 py-3 bg-amber-950/60 border border-amber-500/40 text-amber-300 text-xs rounded-xl space-y-1">
-                <p className="font-bold">⚠️ Cloudinary not configured</p>
-                <p>Photo uploads won't work until you set <code className="bg-black/30 px-1 rounded">CLOUDINARY_CLOUD_NAME</code>, <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_KEY</code>, and <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_SECRET</code> in your Render environment variables.</p>
+              <div className="px-4 py-3 bg-slate-800/80 border border-slate-600/40 text-slate-400 text-xs rounded-xl space-y-1">
+                <p className="font-semibold text-slate-300">ℹ️ Dev mode — images stored locally</p>
+                <p>Cloudinary is not configured. Uploads still work and images are saved as base64. For production, set <code className="bg-black/30 px-1 rounded">CLOUDINARY_CLOUD_NAME</code>, <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_KEY</code>, and <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_SECRET</code>.</p>
               </div>
             )}
 
