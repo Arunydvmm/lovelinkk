@@ -16,6 +16,7 @@ import {
   Save,
   Ribbon,
   Star,
+  Loader2,
 } from 'lucide-react';
 import { MemoryImage, SurpriseData, AwardType, CertificateType } from '../types';
 import {
@@ -29,6 +30,12 @@ import {
 } from '../presets';
 import { SurpriseThemeView } from '../components/SurpriseThemeView';
 import { api } from '../api';
+import {
+  validateImageFile,
+  compressImage,
+  readFileAsDataUrl,
+  withUploadRetry,
+} from '../utils/mediaUpload';
 
 interface Props {
   initialData?: SurpriseData | null;
@@ -88,6 +95,9 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [autosaveTs, setAutosaveTs] = useState<string>('');
+  const [uploadingCover, setUploadingCover] = useState<boolean>(false);
+  const [uploadingMemories, setUploadingMemories] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<string>('');
 
   // Load draft on first mount (only when creating new)
   const draft = initialData ? null : loadDraft();
@@ -214,36 +224,69 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
     ]);
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    (Array.from(files) as File[]).forEach((file: File) => {
-      if (memories.length >= 20) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        setMemories(prev => [
-          ...prev,
-          {
-            id: `upload_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
-            url: result,
-            caption: 'Our special memory',
-            date: 'Today',
-          },
-        ]);
-      };
-      reader.readAsDataURL(file);
-    });
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []) as File[];
+    if (files.length === 0) return;
+    // reset so the same file can be re-selected if needed
+    e.target.value = '';
+
+    setUploadError('');
+    const slotsLeft = 20 - memories.length;
+    const toUpload = files.slice(0, slotsLeft);
+
+    if (toUpload.length === 0) {
+      setUploadError('Maximum 20 memory photos already added.');
+      return;
+    }
+
+    // Validate all files before starting any upload
+    for (const file of toUpload) {
+      const err = validateImageFile(file);
+      if (err) { setUploadError(err); return; }
+    }
+
+    setUploadingMemories(true);
+    try {
+      const uploaded: MemoryImage[] = [];
+      for (const file of toUpload) {
+        const compressed = await compressImage(file);
+        const dataUrl = await readFileAsDataUrl(compressed);
+        const { url } = await withUploadRetry(() => api.uploadMedia(dataUrl, 'image'));
+        uploaded.push({
+          id: `mem_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          url,
+          caption: 'Our special memory',
+          date: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        });
+      }
+      setMemories(prev => [...prev, ...uploaded]);
+    } catch (err: any) {
+      setUploadError(err.message || 'Upload failed. Please try again.');
+    } finally {
+      setUploadingMemories(false);
+    }
   };
 
-  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setCoverImage(event.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    e.target.value = '';
+
+    const err = validateImageFile(file);
+    if (err) { setUploadError(err); return; }
+
+    setUploadError('');
+    setUploadingCover(true);
+    try {
+      const compressed = await compressImage(file);
+      const dataUrl = await readFileAsDataUrl(compressed);
+      const { url } = await withUploadRetry(() => api.uploadMedia(dataUrl, 'image'));
+      setCoverImage(url);
+    } catch (err: any) {
+      setUploadError(err.message || 'Cover upload failed. Please try again.');
+    } finally {
+      setUploadingCover(false);
+    }
   };
 
   const handleAddReason = () => {
@@ -509,8 +552,19 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
               <p className="text-xs text-slate-400">Upload a special cover photo (shown on the welcome screen). Optional — defaults to first memory.</p>
             </div>
 
+            {uploadError && (
+              <div className="px-4 py-3 bg-rose-950/60 border border-rose-500/30 text-rose-300 text-xs rounded-xl">
+                {uploadError}
+              </div>
+            )}
+
             <div className="relative border-2 border-dashed border-slate-700 hover:border-rose-500/50 rounded-2xl p-4 text-center transition-colors">
-              {coverImage ? (
+              {uploadingCover ? (
+                <div className="h-52 flex flex-col items-center justify-center gap-3 text-slate-400">
+                  <Loader2 size={32} className="animate-spin text-rose-400" />
+                  <p className="text-xs font-semibold">Uploading to Cloudinary…</p>
+                </div>
+              ) : coverImage ? (
                 <div className="relative h-52 w-full rounded-xl overflow-hidden group">
                   <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
                   <button
@@ -526,7 +580,7 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
                   <ImageIcon size={40} className="mx-auto text-rose-400" />
                   <p className="text-sm text-slate-300 font-medium">Click to upload cover photo</p>
                   <p className="text-[11px] text-slate-500">JPG, PNG, WebP — if skipped, first memory photo is used automatically</p>
-                  <input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" />
+                  <input type="file" accept="image/*" onChange={handleCoverUpload} disabled={uploadingCover} className="hidden" />
                 </label>
               )}
             </div>
@@ -642,16 +696,31 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
               <p className="text-xs text-slate-400">Upload 5–20 photos of your beautiful moments together</p>
             </div>
 
-            <div className="border-2 border-dashed border-rose-500/30 bg-rose-950/20 hover:border-rose-500/60 rounded-2xl p-6 text-center space-y-3 cursor-pointer transition-colors">
-              <Upload size={36} className="mx-auto text-rose-400" />
-              <div>
-                <p className="text-sm font-bold text-white">Drag & drop your photos here</p>
-                <p className="text-xs text-slate-400">JPG, PNG, WebP — up to 20 photos</p>
+            {uploadError && (
+              <div className="px-4 py-3 bg-rose-950/60 border border-rose-500/30 text-rose-300 text-xs rounded-xl">
+                {uploadError}
               </div>
-              <label className="inline-block px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md cursor-pointer min-h-[40px]">
-                Choose Files
-                <input type="file" multiple accept="image/*" onChange={handleFileUpload} className="hidden" />
-              </label>
+            )}
+
+            <div className="border-2 border-dashed border-rose-500/30 bg-rose-950/20 hover:border-rose-500/60 rounded-2xl p-6 text-center space-y-3 cursor-pointer transition-colors">
+              {uploadingMemories ? (
+                <div className="flex flex-col items-center gap-2 py-2 text-slate-400">
+                  <Loader2 size={28} className="animate-spin text-rose-400" />
+                  <p className="text-xs font-semibold">Compressing &amp; uploading to Cloudinary…</p>
+                </div>
+              ) : (
+                <>
+                  <Upload size={36} className="mx-auto text-rose-400" />
+                  <div>
+                    <p className="text-sm font-bold text-white">Drag & drop your photos here</p>
+                    <p className="text-xs text-slate-400">JPG, PNG, WebP — up to 20 photos</p>
+                  </div>
+                  <label className="inline-block px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md cursor-pointer min-h-[40px]">
+                    Choose Files
+                    <input type="file" multiple accept="image/*" onChange={handleFileUpload} disabled={uploadingMemories} className="hidden" />
+                  </label>
+                </>
+              )}
             </div>
 
             <div className="space-y-2">
