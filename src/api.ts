@@ -1,4 +1,4 @@
-import { User, SurpriseData, AdminStats, SiteSettings } from './types';
+import { User, SurpriseData, AdminStats, SiteSettings, StoryTemplate } from './types';
 
 const API_BASE = '/api';
 
@@ -79,10 +79,10 @@ export const api = {
     return data;
   },
 
-  async adminLogin(passcode: string) {
+  async adminLogin(username: string, password: string) {
     const data = await fetchWithAuth(`${API_BASE}/auth/admin`, {
       method: 'POST',
-      body: JSON.stringify({ passcode }),
+      body: JSON.stringify({ username, password }),
     });
     setAuthToken(data.token);
     setStoredUser(data.user);
@@ -96,33 +96,41 @@ export const api = {
   },
 
   async getPublicSettings(): Promise<SiteSettings> {
-    const res = await fetch(`${API_BASE}/settings`);
-    return res.json();
+    const res = await fetch(`${API_BASE}/admin/settings`);
+    const data = await res.json();
+    return data.settings ?? data;
   },
 
   // Surprises
   async getMySurprises(): Promise<SurpriseData[]> {
-    return fetchWithAuth(`${API_BASE}/surprises`);
+    const data = await fetchWithAuth(`${API_BASE}/surprises`);
+    return data.surprises;
   },
 
-  async getSurpriseById(id: string): Promise<SurpriseData> {
-    const res = await fetch(`${API_BASE}/surprises/${id}`);
+  async getSurpriseById(id: string, viewToken?: string): Promise<SurpriseData> {
+    const url = viewToken
+      ? `${API_BASE}/surprises/${id}?token=${encodeURIComponent(viewToken)}`
+      : `${API_BASE}/surprises/${id}`;
+    const res = await fetch(url);
     if (!res.ok) throw new Error('Surprise not found');
-    return res.json();
+    const data = await res.json();
+    return data.surprise ?? data;
   },
 
   async createSurprise(surprise: Partial<SurpriseData>): Promise<SurpriseData> {
-    return fetchWithAuth(`${API_BASE}/surprises`, {
+    const data = await fetchWithAuth(`${API_BASE}/surprises`, {
       method: 'POST',
       body: JSON.stringify(surprise),
     });
+    return data.surprise ?? data;
   },
 
   async updateSurprise(id: string, surprise: Partial<SurpriseData>): Promise<SurpriseData> {
-    return fetchWithAuth(`${API_BASE}/surprises/${id}`, {
+    const data = await fetchWithAuth(`${API_BASE}/surprises/${id}`, {
       method: 'PUT',
       body: JSON.stringify(surprise),
     });
+    return data.surprise ?? data;
   },
 
   async deleteSurprise(id: string): Promise<{ message: string }> {
@@ -137,7 +145,8 @@ export const api = {
   },
 
   async getAdminUsers(): Promise<User[]> {
-    return fetchWithAuth(`${API_BASE}/admin/users`);
+    const data = await fetchWithAuth(`${API_BASE}/admin/users`);
+    return data.users;
   },
 
   async deleteAdminUser(id: string) {
@@ -147,7 +156,8 @@ export const api = {
   },
 
   async getAdminSurprises(): Promise<SurpriseData[]> {
-    return fetchWithAuth(`${API_BASE}/admin/surprises`);
+    const data = await fetchWithAuth(`${API_BASE}/admin/surprises`);
+    return data.surprises;
   },
 
   async deleteAdminSurprise(id: string) {
@@ -157,9 +167,29 @@ export const api = {
   },
 
   async updateAdminSettings(settings: Partial<SiteSettings>): Promise<SiteSettings> {
-    return fetchWithAuth(`${API_BASE}/admin/settings`, {
+    const data = await fetchWithAuth(`${API_BASE}/admin/settings`, {
       method: 'POST',
       body: JSON.stringify(settings),
     });
-  }
+    return data.settings;
+  },
+
+  async getAdminTemplates(): Promise<StoryTemplate[]> {
+    const data = await fetchWithAuth(`${API_BASE}/admin/templates`);
+    return data.templates;
+  },
+
+  async createAdminTemplate(template: Omit<StoryTemplate, 'id' | 'createdAt'>): Promise<StoryTemplate> {
+    const data = await fetchWithAuth(`${API_BASE}/admin/templates`, {
+      method: 'POST',
+      body: JSON.stringify(template),
+    });
+    return data.template;
+  },
+
+  async deleteAdminTemplate(id: string) {
+    return fetchWithAuth(`${API_BASE}/admin/templates/${id}`, {
+      method: 'DELETE',
+    });
+  },
 };

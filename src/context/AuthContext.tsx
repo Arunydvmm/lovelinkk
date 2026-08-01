@@ -33,7 +33,7 @@ interface AuthContextType {
   isAdminGateOpen: boolean;
   openAdminGate: () => void;
   closeAdminGate: () => void;
-  loginAsAdmin: (passcode: string) => Promise<void>;
+  loginAsAdmin: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -140,8 +140,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   // ─── Admin login ───
-  const loginAsAdmin = async (passcode: string) => {
-    const data = await api.adminLogin(passcode);
+  const loginAsAdmin = async (username: string, password: string) => {
+    const data = await api.adminLogin(username, password);
     setUser(data.user);
     setToken(data.token);
     setIsAdminGateOpen(false);

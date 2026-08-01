@@ -6,6 +6,18 @@ export interface User {
   picture: string;
   role: 'user' | 'admin';
   createdAt: string;
+  lastLoginAt?: string;
+}
+
+export interface StoryTemplate {
+  id: string;
+  title: string;
+  badge: string;
+  description: string;
+  sampleReasons: string[];
+  coverImageUrl: string;
+  musicTrack: { name: string; url: string };
+  createdAt: string;
 }
 
 export interface MemoryImage {

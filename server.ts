@@ -85,6 +85,18 @@ interface User {
   picture: string;
   role: 'user' | 'admin';
   createdAt: string;
+  lastLoginAt?: string;
+}
+
+interface StoryTemplate {
+  id: string;
+  title: string;
+  badge: string;
+  description: string;
+  sampleReasons: string[];
+  coverImageUrl: string;
+  musicTrack: { name: string; url: string };
+  createdAt: string;
 }
 
 interface SiteSettings {
@@ -93,6 +105,8 @@ interface SiteSettings {
   maintenanceMode: boolean;
   defaultMusicTracks: { name: string; url: string }[];
 }
+
+let templates: StoryTemplate[] = [];
 
 let users: User[] = [
   {
@@ -372,6 +386,7 @@ function loadData() {
       if (parsed.users) users = parsed.users;
       if (parsed.surprises) surprises = parsed.surprises;
       if (parsed.siteSettings) siteSettings = parsed.siteSettings;
+      if (parsed.templates) templates = parsed.templates;
     }
     // Backfill viewToken for any existing surprises that predate this feature
     let needsSave = false;
@@ -389,7 +404,7 @@ function loadData() {
 
 function saveData() {
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify({ users, surprises, siteSettings }, null, 2));
+    fs.writeFileSync(DATA_FILE, JSON.stringify({ users, surprises, siteSettings, templates }, null, 2));
   } catch (err) {
     console.error('Failed to save data file', err);
   }
@@ -461,9 +476,13 @@ app.post('/api/upload', authenticateToken, async (req: any, res: any) => {
 });
 
 // AUTH API ROUTES
+// Admin credentials: username + password via env vars.
+// ADMIN_PASSCODE is kept for backward-compatibility (used if ADMIN_PASSWORD is not set).
 const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE || '';
-if (!ADMIN_PASSCODE) {
-  console.warn('[LoveLink] ADMIN_PASSCODE not set — the admin panel cannot be unlocked until it is configured.');
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || ADMIN_PASSCODE;
+if (!ADMIN_PASSWORD) {
+  console.warn('[LoveLink] Neither ADMIN_PASSWORD nor ADMIN_PASSCODE is set — the admin panel cannot be unlocked.');
 }
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
@@ -500,15 +519,22 @@ app.post('/api/auth/guest', (req, res) => {
   return res.json({ token, user });
 });
 
-// Real admin access — a passcode set via the ADMIN_PASSCODE env var, not a fake account picker.
+// Admin login — accepts username + password (ADMIN_USERNAME / ADMIN_PASSWORD env vars).
+// Falls back to accepting the legacy ADMIN_PASSCODE alone for backward compat.
 app.post('/api/auth/admin', (req, res) => {
-  const { passcode } = req.body;
+  const { username, password, passcode } = req.body;
 
-  if (!ADMIN_PASSCODE) {
+  if (!ADMIN_PASSWORD) {
     return res.status(503).json({ error: 'Admin access is not configured on the server.' });
   }
-  if (passcode !== ADMIN_PASSCODE) {
-    return res.status(401).json({ error: 'Incorrect passcode' });
+
+  // Accept either: username+password pair OR legacy passcode-only (backward compat)
+  const credentialsOk =
+    (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) ||
+    (passcode && passcode === ADMIN_PASSCODE && ADMIN_PASSCODE);
+
+  if (!credentialsOk) {
+    return res.status(401).json({ error: 'Incorrect username or password.' });
   }
 
   let admin = users.find(u => u.id === 'admin_owner');
@@ -516,15 +542,17 @@ app.post('/api/auth/admin', (req, res) => {
     admin = {
       id: 'admin_owner',
       googleId: 'admin_owner',
-      name: 'Admin',
+      name: ADMIN_USERNAME,
       email: 'admin@lovelink.local',
       picture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       role: 'admin',
       createdAt: new Date().toISOString(),
     };
     users.push(admin);
-    saveData();
   }
+
+  admin.lastLoginAt = new Date().toISOString();
+  saveData();
 
   const token = jwt.sign({ id: admin.id, email: admin.email, role: admin.role, name: admin.name }, JWT_SECRET, { expiresIn: '7d' });
   return res.json({ token, user: admin });
@@ -574,16 +602,17 @@ app.post('/api/auth/google', async (req: any, res: any) => {
         picture: payload.picture || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
         role: 'user',
         createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
       };
       users.push(user);
-      saveData();
     } else {
       // Keep profile fields fresh from Google.
       user.name = payload.name || user.name;
       user.picture = payload.picture || user.picture;
       user.email = payload.email;
-      saveData();
+      user.lastLoginAt = new Date().toISOString();
     }
+    saveData();
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role, name: user.name },
@@ -806,22 +835,83 @@ app.delete('/api/admin/users/:id', authenticateToken, (req: any, res: any) => {
   return res.json({ message: 'User and their surprises deleted successfully' });
 });
 
+app.get('/api/admin/surprises', authenticateToken, (req: any, res: any) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  return res.json({ surprises });
+});
+
+app.delete('/api/admin/surprises/:id', authenticateToken, (req: any, res: any) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  const { id } = req.params;
+  const idx = surprises.findIndex(s => s.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Surprise not found' });
+  surprises.splice(idx, 1);
+  saveData();
+  return res.json({ message: 'Surprise deleted successfully' });
+});
+
 app.get('/api/admin/settings', (req, res) => {
   return res.json({ settings: siteSettings });
 });
 
+// Accept both PUT and POST for settings (client sends POST)
 app.put('/api/admin/settings', authenticateToken, (req: any, res: any) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
-  
   const { siteName, logoUrl, maintenanceMode, defaultMusicTracks } = req.body;
-  
   if (siteName !== undefined) siteSettings.siteName = siteName;
   if (logoUrl !== undefined) siteSettings.logoUrl = logoUrl;
   if (maintenanceMode !== undefined) siteSettings.maintenanceMode = maintenanceMode;
   if (defaultMusicTracks) siteSettings.defaultMusicTracks = defaultMusicTracks;
-
   saveData();
   return res.json({ settings: siteSettings });
+});
+
+app.post('/api/admin/settings', authenticateToken, (req: any, res: any) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  const { siteName, logoUrl, maintenanceMode, defaultMusicTracks } = req.body;
+  if (siteName !== undefined) siteSettings.siteName = siteName;
+  if (logoUrl !== undefined) siteSettings.logoUrl = logoUrl;
+  if (maintenanceMode !== undefined) siteSettings.maintenanceMode = maintenanceMode;
+  if (defaultMusicTracks) siteSettings.defaultMusicTracks = defaultMusicTracks;
+  saveData();
+  return res.json({ settings: siteSettings });
+});
+
+// ADMIN TEMPLATES ROUTES
+app.get('/api/admin/templates', authenticateToken, (req: any, res: any) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  return res.json({ templates });
+});
+
+app.post('/api/admin/templates', authenticateToken, (req: any, res: any) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  const { title, badge, description, sampleReasons, coverImageUrl, musicTrack } = req.body;
+  if (!title || !badge || !description) {
+    return res.status(400).json({ error: 'title, badge, and description are required' });
+  }
+  const template: StoryTemplate = {
+    id: 'tpl_' + Date.now().toString(36),
+    title: title.trim(),
+    badge: badge.trim(),
+    description: description.trim(),
+    sampleReasons: Array.isArray(sampleReasons) ? sampleReasons : [],
+    coverImageUrl: coverImageUrl || '',
+    musicTrack: musicTrack || { name: '', url: '' },
+    createdAt: new Date().toISOString(),
+  };
+  templates.push(template);
+  saveData();
+  return res.status(201).json({ template });
+});
+
+app.delete('/api/admin/templates/:id', authenticateToken, (req: any, res: any) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  const { id } = req.params;
+  const idx = templates.findIndex(t => t.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Template not found' });
+  templates.splice(idx, 1);
+  saveData();
+  return res.json({ message: 'Template deleted' });
 });
 
 // Vite or Static file serving setup
