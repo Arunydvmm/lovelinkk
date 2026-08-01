@@ -1,3 +1,48 @@
+// ─────────────────────────────────────────────────────────────
+// TIMELINE & QUOTES
+// ─────────────────────────────────────────────────────────────
+
+export interface TimelineEvent {
+  id: string;
+  title: string;
+  date: string;
+  description: string;
+  photo?: string;
+  icon?: string; // emoji
+  color?: string; // tailwind color key e.g. "rose"
+}
+
+export interface QuoteEntry {
+  id: string;
+  type: 'quote' | 'inside-joke' | 'promise' | 'goal';
+  text: string;
+  author?: string;
+  emoji?: string;
+}
+
+// ─────────────────────────────────────────────────────────────
+// INTERACTIVE MODULE IDs (enables/disables per template)
+// ─────────────────────────────────────────────────────────────
+export type InteractiveModuleId =
+  | 'scratch-card'
+  | 'flip-cards'
+  | 'confetti'
+  | 'countdown'
+  | 'polaroid-stack'
+  | 'letter-opening'
+  | 'emoji-rain'
+  | 'photo-carousel'
+  | 'typing-animation'
+  | 'certificate'
+  | 'memory-book'
+  | 'promise-wall'
+  | 'replay'
+  | 'fireworks';
+
+// ─────────────────────────────────────────────────────────────
+// EXTENDED SURPRISE DATA
+// ─────────────────────────────────────────────────────────────
+
 /** Full JSON-engine template stored in MongoDB / data.json */
 export interface FullTemplate {
   id: string;
@@ -91,6 +136,19 @@ export interface SurpriseData {
   viewsCount: number;
   createdAt: string;
   updatedAt: string;
+  // ── Enhanced fields ──
+  nickname?: string;
+  relationship?: string;
+  occasion?: string;
+  specialDate?: string;
+  yearsTogether?: number;
+  profilePicture?: string;
+  headline?: string;
+  letterSignature?: string;
+  timeline?: TimelineEvent[];
+  quotes?: QuoteEntry[];
+  enabledModules?: InteractiveModuleId[];
+  countdownDate?: string;
 }
 
 export interface AdminStats {
