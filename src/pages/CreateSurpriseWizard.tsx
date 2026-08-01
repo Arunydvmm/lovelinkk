@@ -4,7 +4,6 @@ import {
   Heart,
   Upload,
   Music,
-  Award,
   Sparkles,
   ChevronRight,
   ChevronLeft,
@@ -14,17 +13,12 @@ import {
   Check,
   Image as ImageIcon,
   Save,
-  Ribbon,
-  Star,
   Loader2,
-  CloudUpload,
 } from 'lucide-react';
 import { MemoryImage, SurpriseData, AwardType, CertificateType } from '../types';
 import {
   PRESET_MUSIC_TRACKS,
-  SAMPLE_MEMORY_IMAGES,
   SAMPLE_REASONS,
-  AWARD_OPTIONS,
   STORY_TEMPLATES,
   CERTIFICATE_TYPES,
   StoryTemplate,
@@ -221,22 +215,8 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
     if (!partnerName) setPartnerName(tmpl.partnerName);
     setRecipientName(partnerName || tmpl.partnerName);
     setPresentedBy(creatorName || tmpl.creatorName);
-    setCoverImage(tmpl.coverImage);
+    // Do NOT auto-set cover image or memories — user uploads their own photos
     setSelectedMusic({ type: 'preset', name: tmpl.musicTrackName, url: tmpl.musicTrackUrl });
-    // Do NOT auto-populate memories — user uploads their own photos
-  };
-
-  const handleAddSampleMemory = (sample: (typeof SAMPLE_MEMORY_IMAGES)[0]) => {
-    if (memories.length >= 20) return alert('Maximum 20 memories allowed');
-    setMemories(prev => [
-      ...prev,
-      {
-        id: `mem_${Date.now()}_${Math.random().toString(36).substring(2, 5)}`,
-        url: sample.url,
-        caption: sample.caption,
-        date: sample.date,
-      },
-    ]);
   };
 
   // ─── shared helper: upload an array of Files as memory images ───
@@ -444,6 +424,22 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
 
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans py-8 px-4 max-w-5xl mx-auto">
+      {/* ─── Always-mounted hidden file inputs — refs must never be inside AnimatePresence ─── */}
+      <input
+        ref={coverInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleCoverFileInputChange}
+      />
+      <input
+        ref={memoriesInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileUpload}
+      />
 
       {/* ─── Progress Header ─── */}
       <div className="mb-6 max-w-2xl mx-auto">
@@ -625,16 +621,6 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
                 {uploadError}
               </div>
             )}
-
-            {/* hidden input lives outside the drag zone so browser click events never get swallowed */}
-            <input
-              ref={coverInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleCoverFileInputChange}
-              disabled={uploadingCover}
-            />
 
             <div
               onDrop={handleCoverDrop}
@@ -832,17 +818,6 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
                 {uploadError}
               </div>
             )}
-
-            {/* hidden input lives outside the drag zone so browser click events never get swallowed */}
-            <input
-              ref={memoriesInputRef}
-              type="file"
-              multiple
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileUpload}
-              disabled={uploadingMemories}
-            />
 
             <div
               onDrop={handleMemoriesDrop}
