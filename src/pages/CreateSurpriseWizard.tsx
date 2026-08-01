@@ -97,6 +97,10 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [autosaveTs, setAutosaveTs] = useState<string>('');
+  // refs for hidden file inputs — click triggered programmatically so the
+  // input is never inside a <label> inside a drag-zone (avoids browser quirks)
+  const memoriesInputRef = React.useRef<HTMLInputElement>(null);
+  const coverInputRef = React.useRef<HTMLInputElement>(null);
   const [uploadingCover, setUploadingCover] = useState<boolean>(false);
   const [uploadingMemories, setUploadingMemories] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string>('');
@@ -128,12 +132,7 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
   const [memories, setMemories] = useState<MemoryImage[]>(
     initialData?.memoryImages ??
       draft?.memories ??
-      SAMPLE_MEMORY_IMAGES.slice(0, 5).map((s, i) => ({
-        id: `default_${i}`,
-        url: s.url,
-        caption: s.caption,
-        date: s.date,
-      }))
+      [] // start empty — user uploads their own photos
   );
   // ref always points at the latest memories array — used by upload callbacks
   // so they don't capture a stale closure value for the slot-count check
@@ -298,8 +297,15 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []) as File[];
     if (files.length === 0) return;
-    e.target.value = '';
+    e.target.value = ''; // reset so same file can be re-selected
     await uploadMemoryFiles(files);
+  };
+
+  const handleCoverFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    await uploadCoverFile(file);
   };
 
   // ─── shared helper: upload a single File as cover ───
@@ -683,14 +689,29 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
                   </button>
                 </div>
               ) : (
-                <label className="cursor-pointer space-y-3 block py-6">
+                <div className="space-y-3 py-6">
+                  {/* hidden input — triggered by button click via ref */}
+                  <input
+                    ref={coverInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleCoverFileInputChange}
+                    disabled={uploadingCover}
+                  />
                   <ImageIcon size={40} className="mx-auto text-rose-400" />
                   <p className="text-sm text-slate-300 font-medium">
-                    {coverDragOver ? '✦ Drop to upload!' : 'Click or drag & drop cover photo'}
+                    {coverDragOver ? '✦ Drop to upload!' : 'Click the button or drag & drop'}
                   </p>
                   <p className="text-[11px] text-slate-500">JPG, PNG, WebP — if skipped, first memory photo is used automatically</p>
-                  <input type="file" accept="image/*" onChange={handleCoverUpload} disabled={uploadingCover} className="hidden" />
-                </label>
+                  <button
+                    type="button"
+                    onClick={() => coverInputRef.current?.click()}
+                    className="mx-auto flex items-center gap-2 px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-bold text-xs shadow-md min-h-[40px]"
+                  >
+                    <Upload size={14} /> Choose Photo
+                  </button>
+                </div>
               )}
             </div>
 
@@ -859,6 +880,16 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
                 </div>
               ) : (
                 <>
+                  {/* hidden input — triggered by button click via ref */}
+                  <input
+                    ref={memoriesInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                    disabled={uploadingMemories}
+                  />
                   <Upload size={36} className="mx-auto text-rose-400" />
                   <div>
                     <p className="text-sm font-bold text-white">
@@ -866,18 +897,21 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
                     </p>
                     <p className="text-xs text-slate-400">JPG, PNG, WebP — up to 20 photos</p>
                   </div>
-                  <label className="inline-block px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md cursor-pointer min-h-[40px]">
-                    Choose Files
-                    <input type="file" multiple accept="image/*" onChange={handleFileUpload} disabled={uploadingMemories} className="hidden" />
-                  </label>
+                  <button
+                    type="button"
+                    onClick={() => memoriesInputRef.current?.click()}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-bold text-xs shadow-md min-h-[40px]"
+                  >
+                    <Upload size={14} /> Choose Files
+                  </button>
                 </>
               )}
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-slate-300">
-                <span>Uploaded ({memories.length} / 20)</span>
-                <span className="text-rose-400 text-[10px]">Min 5 recommended</span>
+                <span>Photos ({memories.length} / 20)</span>
+                <span className="text-rose-400 text-[10px]">Min 1 required</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-60 overflow-y-auto pr-1">
                 {memories.map((mem, idx) => (
@@ -907,24 +941,6 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
                       className="w-full bg-slate-900 border border-slate-800 text-[10px] text-slate-200 px-2 py-1 rounded focus:outline-none focus:border-rose-500"
                     />
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2 pt-2 border-t border-slate-800">
-              <p className="text-xs font-bold text-slate-400">Need samples? Tap to add preset photos:</p>
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {SAMPLE_MEMORY_IMAGES.map((sample, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleAddSampleMemory(sample)}
-                    className="flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border border-slate-700 hover:border-rose-400 relative group"
-                  >
-                    <img src={sample.url} alt="Preset" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Plus size={16} className="text-white" />
-                    </div>
-                  </button>
                 ))}
               </div>
             </div>
