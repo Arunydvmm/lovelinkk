@@ -1,4 +1,4 @@
-import { User, SurpriseData, AdminStats, SiteSettings, StoryTemplate } from './types';
+import { User, SurpriseData, AdminStats, SiteSettings, StoryTemplate, FullTemplate } from './types';
 
 const API_BASE = '/api';
 
@@ -194,6 +194,42 @@ export const api = {
 
   async deleteAdminTemplate(id: string) {
     return fetchWithAuth(`${API_BASE}/admin/templates/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // ─── Full JSON-engine templates (public gallery) ───
+
+  async getPublicTemplates(): Promise<FullTemplate[]> {
+    const res = await fetch(`${API_BASE}/templates`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.templates ?? [];
+  },
+
+  async getAdminFullTemplates(): Promise<FullTemplate[]> {
+    const data = await fetchWithAuth(`${API_BASE}/admin/full-templates`);
+    return data.templates ?? [];
+  },
+
+  async createFullTemplate(template: Partial<FullTemplate>): Promise<FullTemplate> {
+    const data = await fetchWithAuth(`${API_BASE}/admin/full-templates`, {
+      method: 'POST',
+      body: JSON.stringify(template),
+    });
+    return data.template;
+  },
+
+  async updateFullTemplate(id: string, updates: Partial<FullTemplate>): Promise<FullTemplate> {
+    const data = await fetchWithAuth(`${API_BASE}/admin/full-templates/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+    return data.template;
+  },
+
+  async deleteFullTemplate(id: string) {
+    return fetchWithAuth(`${API_BASE}/admin/full-templates/${id}`, {
       method: 'DELETE',
     });
   },

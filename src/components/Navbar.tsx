@@ -116,6 +116,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onNavigate }) => {
           </button>
 
           <button
+            onClick={() => onNavigate('templates')}
+            className={`text-xs font-semibold transition-colors relative py-1 flex items-center gap-1 ${
+              currentTab === 'templates' ? 'text-rose-600 font-bold' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Templates
+            {currentTab === 'templates' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full" />
+            )}
+          </button>
+
+          <button
             onClick={() => {
               onNavigate('home');
               setTimeout(() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' }), 100);

@@ -1,3 +1,28 @@
+/** Full JSON-engine template stored in MongoDB / data.json */
+export interface FullTemplate {
+  id: string;
+  /** display name */
+  name: string;
+  /** short badge label e.g. "❤️ Classic" */
+  badge: string;
+  description: string;
+  category: string;
+  subcategory?: string;
+  mood?: string[];
+  style?: string[];
+  previewImage?: string;
+  /** legacy field kept for backward compat */
+  coverImageUrl?: string;
+  /** full JSON engine spec (pages, theme, animations …) */
+  templateJson?: Record<string, unknown>;
+  totalPages?: number;
+  featured?: boolean;
+  /** false = draft / not shown on public gallery */
+  published: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface User {
   id: string;
   googleId: string;

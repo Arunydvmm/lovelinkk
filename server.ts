@@ -99,6 +99,25 @@ interface StoryTemplate {
   createdAt: string;
 }
 
+interface FullTemplate {
+  id: string;
+  name: string;
+  badge: string;
+  description: string;
+  category: string;
+  subcategory?: string;
+  mood?: string[];
+  style?: string[];
+  previewImage?: string;
+  coverImageUrl?: string;
+  templateJson?: Record<string, unknown>;
+  totalPages?: number;
+  featured?: boolean;
+  published: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 interface SiteSettings {
   siteName: string;
   logoUrl: string;
@@ -107,6 +126,7 @@ interface SiteSettings {
 }
 
 let templates: StoryTemplate[] = [];
+let fullTemplates: FullTemplate[] = [];
 
 let users: User[] = [
   {
@@ -387,6 +407,7 @@ function loadData() {
       if (parsed.surprises) surprises = parsed.surprises;
       if (parsed.siteSettings) siteSettings = parsed.siteSettings;
       if (parsed.templates) templates = parsed.templates;
+      if (parsed.fullTemplates) fullTemplates = parsed.fullTemplates;
     }
     // Backfill viewToken for any existing surprises that predate this feature
     let needsSave = false;
@@ -404,7 +425,7 @@ function loadData() {
 
 function saveData() {
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify({ users, surprises, siteSettings, templates }, null, 2));
+    fs.writeFileSync(DATA_FILE, JSON.stringify({ users, surprises, siteSettings, templates, fullTemplates }, null, 2));
   } catch (err) {
     console.error('Failed to save data file', err);
   }
@@ -922,6 +943,80 @@ app.delete('/api/admin/templates/:id', authenticateToken, (req: any, res: any) =
   const idx = templates.findIndex(t => t.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Template not found' });
   templates.splice(idx, 1);
+  saveData();
+  return res.json({ message: 'Template deleted' });
+});
+
+// ── PUBLIC template gallery route (no auth required) ──
+app.get('/api/templates', (_req, res) => {
+  const published = fullTemplates.filter(t => t.published !== false);
+  return res.json({ templates: published });
+});
+
+// ── ADMIN full-template CRUD ──
+app.get('/api/admin/full-templates', authenticateToken, (req: any, res: any) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  return res.json({ templates: fullTemplates });
+});
+
+app.post('/api/admin/full-templates', authenticateToken, (req: any, res: any) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+
+  const {
+    name, badge, description, category, subcategory, mood, style,
+    previewImage, coverImageUrl, templateJson, totalPages, featured, published,
+  } = req.body;
+
+  if (!name || !description) {
+    return res.status(400).json({ error: 'name and description are required' });
+  }
+
+  const tpl: FullTemplate = {
+    id: 'ftpl_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+    name: String(name).trim(),
+    badge: String(badge || '❤️').trim(),
+    description: String(description).trim(),
+    category: String(category || 'romantic').toLowerCase(),
+    subcategory: subcategory || undefined,
+    mood: Array.isArray(mood) ? mood : [],
+    style: Array.isArray(style) ? style : [],
+    previewImage: previewImage || '',
+    coverImageUrl: coverImageUrl || '',
+    templateJson: templateJson || undefined,
+    totalPages: totalPages ? Number(totalPages) : undefined,
+    featured: Boolean(featured),
+    published: published !== false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  fullTemplates.unshift(tpl);
+  saveData();
+  return res.status(201).json({ template: tpl });
+});
+
+app.put('/api/admin/full-templates/:id', authenticateToken, (req: any, res: any) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  const tpl = fullTemplates.find(t => t.id === req.params.id);
+  if (!tpl) return res.status(404).json({ error: 'Template not found' });
+
+  const allowed = [
+    'name','badge','description','category','subcategory','mood','style',
+    'previewImage','coverImageUrl','templateJson','totalPages','featured','published',
+  ] as const;
+  for (const key of allowed) {
+    if (req.body[key] !== undefined) (tpl as any)[key] = req.body[key];
+  }
+  tpl.updatedAt = new Date().toISOString();
+  saveData();
+  return res.json({ template: tpl });
+});
+
+app.delete('/api/admin/full-templates/:id', authenticateToken, (req: any, res: any) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+  const idx = fullTemplates.findIndex(t => t.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Template not found' });
+  fullTemplates.splice(idx, 1);
   saveData();
   return res.json({ message: 'Template deleted' });
 });

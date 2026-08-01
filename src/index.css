@@ -12,7 +12,69 @@
   }
 }
 
-/* Custom smooth scrollbars */
+/* ═══════════════════════════════════════════════
+   CUSTOM HEART CURSOR
+   ═══════════════════════════════════════════════ */
+
+/* SVG heart encoded as data URI — no external file needed */
+:root {
+  --heart-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23e11d48' d='M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z'/%3E%3C/svg%3E") 12 12, pointer;
+}
+
+/* Apply to the whole app — but keep text cursor on inputs/textareas */
+body {
+  cursor: var(--heart-cursor);
+}
+
+input, textarea, select, [contenteditable] {
+  cursor: text;
+}
+
+button, a, [role="button"], label[for], summary {
+  cursor: var(--heart-cursor);
+}
+
+/* Suppress cursor on the surprise view (its own immersive experience) */
+.surprise-view-page {
+  cursor: default;
+}
+
+/* ═══════════════════════════════════════════════
+   SHIMMER SKELETON
+   ═══════════════════════════════════════════════ */
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(254, 205, 211, 0.40) 25%,
+    rgba(255, 228, 230, 0.70) 50%,
+    rgba(254, 205, 211, 0.40) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
+/* Dark-bg variant (for admin panel cards) */
+.skeleton-shimmer-dark {
+  background: linear-gradient(
+    90deg,
+    rgba(51, 65, 85, 0.50) 25%,
+    rgba(71, 85, 105, 0.80) 50%,
+    rgba(51, 65, 85, 0.50) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
+/* ═══════════════════════════════════════════════
+   SCROLLBARS
+   ═══════════════════════════════════════════════ */
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -28,37 +90,32 @@
   background: rgba(26, 26, 26, 0.3);
 }
 
+/* ═══════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════ */
+
 @keyframes float-slow {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(3deg); }
+  50%       { transform: translateY(-10px) rotate(3deg); }
 }
 
 @keyframes pulse-soft {
   0%, 100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.05); opacity: 1; }
+  50%       { transform: scale(1.05); opacity: 1; }
 }
 
 @keyframes floatUp {
-  0% {
-    transform: translateY(105vh) scale(0.5) rotate(-10deg);
-    opacity: 0;
-  }
-  15% {
-    opacity: 0.85;
-  }
-  85% {
-    opacity: 0.85;
-  }
-  100% {
-    transform: translateY(-15vh) scale(1.25) rotate(20deg);
-    opacity: 0;
-  }
+  0%   { transform: translateY(105vh) scale(0.5) rotate(-10deg); opacity: 0; }
+  15%  { opacity: 0.85; }
+  85%  { opacity: 0.85; }
+  100% { transform: translateY(-15vh) scale(1.25) rotate(20deg); opacity: 0; }
 }
 
-.animate-float {
-  animation: float-slow 6s ease-in-out infinite;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-pulse-soft {
-  animation: pulse-soft 3s ease-in-out infinite;
-}
+.animate-float      { animation: float-slow 6s ease-in-out infinite; }
+.animate-pulse-soft { animation: pulse-soft 3s ease-in-out infinite; }
+.animate-fadeIn     { animation: fadeIn 0.35s ease-out forwards; }

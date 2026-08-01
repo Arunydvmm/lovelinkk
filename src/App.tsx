@@ -6,10 +6,11 @@ import { AdminGateModal } from './components/AdminGateModal';
 import { LandingPage } from './pages/LandingPage';
 import { Heart, LogIn } from 'lucide-react';
 
-const UserDashboard = lazy(() => import('./pages/UserDashboard').then(m => ({ default: m.UserDashboard })));
-const WizardPage = lazy(() => import('./pages/WizardPage').then(m => ({ default: m.WizardPage })));
-const SurpriseViewPage = lazy(() => import('./pages/SurpriseViewPage').then(m => ({ default: m.SurpriseViewPage })));
-const AdminPanel = lazy(() => import('./pages/AdminPanel').then(m => ({ default: m.AdminPanel })));
+const UserDashboard   = lazy(() => import('./pages/UserDashboard').then(m => ({ default: m.UserDashboard })));
+const WizardPage      = lazy(() => import('./pages/WizardPage').then(m => ({ default: m.WizardPage })));
+const SurpriseViewPage= lazy(() => import('./pages/SurpriseViewPage').then(m => ({ default: m.SurpriseViewPage })));
+const AdminPanel      = lazy(() => import('./pages/AdminPanel').then(m => ({ default: m.AdminPanel })));
+const TemplateGallery = lazy(() => import('./pages/TemplateGallery').then(m => ({ default: m.TemplateGallery })));
 
 const PageLoadingFallback = () => (
   <div className="flex-1 flex items-center justify-center py-24">
@@ -81,6 +82,8 @@ export function MainApp() {
         setCurrentTab('admin');
       } else if (path === '/how-it-works') {
         setCurrentTab('how-it-works');
+      } else if (path === '/templates') {
+        setCurrentTab('templates');
       } else {
         setCurrentTab('home');
       }
@@ -113,6 +116,7 @@ export function MainApp() {
     }
     else if (tab === 'admin') newPath = '/admin';
     else if (tab === 'how-it-works') newPath = '/how-it-works';
+    else if (tab === 'templates') newPath = '/templates';
 
     window.history.pushState({}, '', newPath);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -130,7 +134,9 @@ export function MainApp() {
 
       <div className="flex-1 flex flex-col">
         <Suspense fallback={<PageLoadingFallback />}>
-          {currentTab === 'home' || currentTab === 'how-it-works' ? (
+          {currentTab === 'templates' ? (
+            <TemplateGallery onNavigate={navigateTo} />
+          ) : currentTab === 'home' || currentTab === 'how-it-works' ? (
             <LandingPage onNavigate={navigateTo} />
           ) : currentTab === 'dashboard' ? (
             <UserDashboard onNavigate={navigateTo} />
