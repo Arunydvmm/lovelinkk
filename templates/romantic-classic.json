@@ -1,0 +1,1005 @@
+{
+  "metadata": {
+    "id": "romantic-classic-v1",
+    "name": "Romantic Classic",
+    "version": "1.0.0",
+    "description": "A timeless romantic surprise journey — welcome, gift reveal, love letter, reasons, memories, music, certificate and a final farewell. Perfect for anniversaries, birthdays, and spontaneous love gestures.",
+    "badge": "❤️ Classic",
+    "badgeBg": "bg-rose-100 text-rose-700",
+    "category": "romantic",
+    "tags": ["anniversary", "birthday", "valentine", "love", "classic"],
+    "previewImage": "{{coverImage}}",
+    "author": "LoveLink",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "totalPages": 9
+  },
+
+  "theme": {
+    "background": {
+      "type": "gradient",
+      "colors": ["#fce7f3", "#fff1f2", "#fce7f3"],
+      "direction": "135deg"
+    },
+    "ambientOverlay": {
+      "type": "radial-gradient",
+      "colors": ["rgba(251,207,232,0.5)", "rgba(255,241,242,0.8)", "rgba(252,231,243,1)"],
+      "position": "ellipse at top"
+    },
+    "colors": {
+      "primary": "#e11d48",
+      "primaryLight": "#fb7185",
+      "primaryDark": "#9f1239",
+      "secondary": "#ec4899",
+      "surface": "rgba(255,255,255,0.92)",
+      "surfaceBlur": "rgba(255,255,255,0.85)",
+      "border": "#fecdd3",
+      "borderStrong": "#fda4af",
+      "text": "#4c0519",
+      "textMuted": "#9f1239",
+      "textSubtle": "rgba(159,18,57,0.7)",
+      "badge": "#fecdd3",
+      "badgeText": "#9f1239",
+      "buttonPrimary": "linear-gradient(135deg, #e11d48, #ec4899, #e11d48)",
+      "buttonSecondary": "transparent",
+      "buttonSecondaryBorder": "#fda4af",
+      "buttonSecondaryText": "#be123c",
+      "progressBar": "linear-gradient(90deg, #e11d48, #ec4899)",
+      "progressTrack": "#fce7f3",
+      "confettiColors": ["#f43f5e", "#ec4899", "#fb7185", "#ffffff", "#fda4af"]
+    },
+    "typography": {
+      "fontFamily": {
+        "sans": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        "serif": "Georgia, 'Times New Roman', serif"
+      },
+      "sizes": {
+        "hero": "2.25rem",
+        "heading": "1.75rem",
+        "subheading": "1.25rem",
+        "body": "0.9375rem",
+        "small": "0.8125rem",
+        "caption": "0.6875rem",
+        "badge": "0.6875rem"
+      },
+      "weights": {
+        "normal": 400,
+        "medium": 500,
+        "semibold": 600,
+        "bold": 700,
+        "extrabold": 800
+      }
+    },
+    "spacing": {
+      "pagePadding": "1.25rem",
+      "cardPadding": "1.5rem",
+      "sectionGap": "1.5rem",
+      "elementGap": "1rem"
+    },
+    "radius": {
+      "card": "1.25rem",
+      "pill": "9999px",
+      "button": "9999px",
+      "image": "0.75rem",
+      "avatar": "9999px"
+    },
+    "shadows": {
+      "card": "0 20px 60px rgba(225,29,72,0.12), 0 4px 16px rgba(0,0,0,0.06)",
+      "button": "0 8px 24px rgba(225,29,72,0.30)",
+      "avatar": "0 20px 60px rgba(225,29,72,0.20), 0 4px 16px rgba(0,0,0,0.08)",
+      "music": "0 8px 32px rgba(225,29,72,0.18)"
+    },
+    "glassmorphism": {
+      "background": "rgba(255,255,255,0.88)",
+      "backdropBlur": "16px",
+      "border": "1px solid rgba(254,205,211,0.8)"
+    },
+    "decorations": {
+      "floatingHearts": true,
+      "heartCount": 10,
+      "heartColors": ["rgba(251,113,133,0.30)", "rgba(236,72,153,0.20)"],
+      "heartSizes": [20, 27, 34, 20, 20, 27, 27, 34, 27, 20],
+      "ambientBlobs": true,
+      "blobColors": ["rgba(252,207,232,0.40)", "rgba(251,207,232,0.30)"],
+      "progressDots": true
+    },
+    "stickers": ["❤️", "💕", "✨", "🌹", "💖", "🎁", "🏆", "🎵"],
+    "emojis": {
+      "love": "❤️",
+      "sparkle": "✨",
+      "gift": "🎁",
+      "music": "🎵",
+      "certificate": "🏆",
+      "flower": "🌹",
+      "star": "⭐"
+    }
+  },
+
+  "globalAnimation": {
+    "pageTransition": {
+      "type": "fade",
+      "duration": 0.55,
+      "easing": "easeOut"
+    },
+    "floatingHearts": {
+      "type": "heartFloat",
+      "duration": { "min": 14, "max": 26.5 },
+      "delay": { "step": 0.9 },
+      "yFrom": "105vh",
+      "yTo": "-10vh",
+      "rotate": 360,
+      "loop": true
+    },
+    "cardEntrance": {
+      "type": "zoom",
+      "initialScale": 0.92,
+      "initialY": 20,
+      "duration": 0.6
+    },
+    "slideEntrance": {
+      "type": "slide",
+      "initialY": 30,
+      "duration": 0.6
+    },
+    "flashCard": {
+      "type": "slide",
+      "enterX": 60,
+      "exitX": -60,
+      "rotateY": 15,
+      "duration": 0.35,
+      "easing": "easeOut",
+      "swipeThreshold": 40
+    },
+    "confetti": {
+      "particleCount": 80,
+      "spread": 100,
+      "origin": { "y": 0.6 },
+      "colors": ["#f43f5e", "#ec4899", "#fb7185", "#ffffff"]
+    },
+    "confettiMini": {
+      "particleCount": 20,
+      "spread": 50,
+      "origin": { "y": 0.7 },
+      "colors": ["#f43f5e", "#fb7185"]
+    },
+    "progressBar": {
+      "type": "slide",
+      "duration": 0.4
+    },
+    "waveform": {
+      "type": "pulse",
+      "bars": 20,
+      "heightRange": [8, 45],
+      "duration": { "min": 0.6, "max": 1.2 },
+      "delay": { "step": 0.05 },
+      "barWidth": "0.375rem",
+      "barColor": "#fda4af"
+    },
+    "avatarGlow": {
+      "type": "pulse",
+      "loop": true,
+      "colors": ["#f43f5e", "#ec4899"]
+    },
+    "lightboxFade": {
+      "type": "fade",
+      "duration": 0.25
+    }
+  },
+
+  "music": {
+    "variable": "{{music}}",
+    "autoPlayOnPageTwo": true,
+    "loop": true,
+    "defaultVolume": 0.5,
+    "showFloatingPill": true,
+    "pill": {
+      "position": "top-right",
+      "offset": "1rem",
+      "glassmorphism": true
+    },
+    "controls": ["play", "pause", "mute", "unmute"]
+  },
+
+  "variables": [
+    { "key": "yourName",       "label": "Your Name",           "type": "text",      "required": true,  "placeholder": "Priya" },
+    { "key": "partnerName",    "label": "Partner / Recipient", "type": "text",      "required": true,  "placeholder": "Kabir" },
+    { "key": "title",          "label": "Story Title",         "type": "text",      "required": true,  "placeholder": "Our Love Story ❤️" },
+    { "key": "welcomeMessage", "label": "Welcome Message",     "type": "text",      "required": false, "placeholder": "Welcome to our special place ❤️" },
+    { "key": "loveLetter",     "label": "Love Letter",         "type": "textarea",  "required": true,  "placeholder": "You are the best part of my life…" },
+    { "key": "finalMessage",   "label": "Final Message",       "type": "text",      "required": false, "placeholder": "Thank you for being mine. I love you endlessly! ❤️" },
+    { "key": "reasons",        "label": "Reasons I Love You",  "type": "array",     "required": true,  "min": 1, "max": 15 },
+    { "key": "coverImage",     "label": "Cover Photo",         "type": "image",     "required": false, "fallback": "{{gallery[0]}}" },
+    { "key": "gallery",        "label": "Memory Photos",       "type": "imageArray","required": true,  "min": 1, "max": 20 },
+    { "key": "music",          "label": "Background Music",    "type": "music",     "required": false },
+    { "key": "date",           "label": "Certificate Date",    "type": "date",      "required": false, "fallback": "today" },
+    { "key": "certificateType","label": "Certificate Type",    "type": "select",    "required": true,  "options": ["Girlfriend","Boyfriend","Best Friend","Husband","Wife"] },
+    { "key": "certificateName","label": "Certificate Recipient","type": "text",     "required": false, "fallback": "{{partnerName}}" },
+    { "key": "presentedBy",    "label": "Presented By",        "type": "text",      "required": false, "fallback": "{{yourName}}" },
+    { "key": "personalMessage","label": "Personal Message on Certificate","type": "text","required": false, "placeholder": "You are my forever and always…" },
+    { "key": "award",          "label": "Award Title",         "type": "select",    "required": false, "options": ["Best Girlfriend ❤️","Best Boyfriend ❤️","Best Partner ❤️"], "fallback": "Best Partner ❤️" }
+  ],
+
+  "pages": [
+    {
+      "id": "page-1",
+      "pageNumber": 1,
+      "key": "welcome",
+      "label": "Welcome",
+      "component": "Cover",
+      "showInProgress": false,
+      "transition": {
+        "enter": { "type": "zoom", "initialScale": 0.92, "initialY": 20, "duration": 0.6 },
+        "exit":  { "type": "zoom", "exitScale": 0.92,   "exitY": -20,   "duration": 0.6 }
+      },
+      "layout": {
+        "alignment": "center",
+        "direction": "column",
+        "justify": "center",
+        "gap": "1.5rem",
+        "paddingY": "5rem"
+      },
+      "content": {
+        "avatar": {
+          "src": "{{coverImage}}",
+          "fallback": "{{gallery[0]}}",
+          "shape": "circle",
+          "size": { "default": "11rem", "sm": "13rem" },
+          "borderWidth": "4px",
+          "borderColor": "#fda4af",
+          "innerPadding": "0.25rem",
+          "background": "#ffffff",
+          "glow": {
+            "enabled": true,
+            "colors": ["#f43f5e", "#ec4899"],
+            "blur": "1.25rem",
+            "opacity": 0.70,
+            "animation": "pulse"
+          },
+          "overlay": {
+            "gradient": "from-rose-950/60 via-transparent to-transparent",
+            "icon": "heart",
+            "iconSize": 28,
+            "iconColor": "#f43f5e",
+            "iconAnimation": "bounce"
+          },
+          "hoverScale": 1.05,
+          "hoverDuration": 700
+        },
+        "badge": {
+          "text": "✨ A Special Digital Surprise",
+          "style": "pill",
+          "background": "rgba(254,205,211,0.70)",
+          "border": "#fda4af",
+          "textColor": "#9f1239"
+        },
+        "heading": {
+          "text": "{{yourName}} & {{partnerName}}",
+          "fontFamily": "sans",
+          "fontSize": "hero",
+          "fontWeight": "extrabold",
+          "color": "#4c0519"
+        },
+        "subtitle": {
+          "text": "\"{{title}}\"",
+          "fontFamily": "serif",
+          "fontStyle": "italic",
+          "fontSize": "body",
+          "color": "#9f1239"
+        },
+        "messageCard": {
+          "text": "{{welcomeMessage}}",
+          "fallback": "Welcome to our special digital memory book ❤️",
+          "glassmorphism": true,
+          "textAlign": "center",
+          "fontWeight": "medium",
+          "fontSize": "body"
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-open",
+          "type": "button",
+          "variant": "primary",
+          "label": "Open Our Story",
+          "iconLeft": "heart",
+          "iconRight": "chevron-right",
+          "fullWidth": true,
+          "animation": { "hover": "scale:1.03", "tap": "scale:0.97" },
+          "onClick": [
+            { "action": "navigate", "target": "next" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "page-2",
+      "pageNumber": 2,
+      "key": "cover",
+      "label": "Gift Reveal",
+      "component": "CuteCatGift",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "zoom", "initialScale": 0.92, "duration": 0.5 },
+        "exit":  { "type": "zoom", "exitScale": 0.92,   "duration": 0.5 }
+      },
+      "layout": { "alignment": "center", "direction": "column", "justify": "center" },
+      "content": {
+        "catAnimation": {
+          "states": ["sleeping","wake","blink","smile","tail","heart","giftAppears","opened"],
+          "timing": [0, 1500, 2800, 4000, 5200, 6400, 7600],
+          "greeting": "{{partnerName}}"
+        }
+      },
+      "onEnter": [
+        { "action": "playMusic" },
+        { "action": "confetti", "preset": "confetti" }
+      ],
+      "actions": [
+        {
+          "id": "btn-gift-skip",
+          "type": "button",
+          "variant": "secondary",
+          "label": "Skip →",
+          "position": "bottom",
+          "onClick": [{ "action": "navigate", "target": "next" }]
+        },
+        {
+          "id": "btn-gift-back",
+          "type": "button",
+          "variant": "ghost",
+          "label": "← Back",
+          "position": "bottom",
+          "onClick": [{ "action": "navigate", "target": "prev" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-3",
+      "pageNumber": 3,
+      "key": "letter",
+      "label": "Letter",
+      "component": "LoveLetter",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "slide", "initialY": 30, "duration": 0.6 },
+        "exit":  { "type": "slide", "exitY": -30,  "duration": 0.6 }
+      },
+      "layout": { "alignment": "center", "direction": "column", "gap": "1.25rem" },
+      "content": {
+        "badge": {
+          "text": "From My Heart",
+          "style": "pill"
+        },
+        "heading": {
+          "text": "A Letter For You",
+          "fontFamily": "serif",
+          "icon": "heart"
+        },
+        "card": {
+          "glassmorphism": true,
+          "border": "#fda4af",
+          "decorativeBlob": { "position": "top-right", "color": "rgba(251,207,232,0.40)", "blur": "2rem" },
+          "salutation": {
+            "text": "My Dearest {{partnerName}},",
+            "fontFamily": "serif",
+            "fontWeight": "bold",
+            "color": "#be123c"
+          },
+          "body": {
+            "text": "{{loveLetter}}",
+            "fallback": "You are the best part of my life. Every moment spent with you is a blessing that I cherish deeply. I love you today, tomorrow, and forever.",
+            "fontFamily": "serif",
+            "fontStyle": "italic",
+            "fontWeight": "medium",
+            "whiteSpace": "pre-line"
+          },
+          "signature": {
+            "caption": "With all my love,",
+            "name": "{{yourName}}",
+            "fontFamily": "serif",
+            "align": "right",
+            "divider": true
+          }
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-letter-next",
+          "type": "button",
+          "variant": "primary",
+          "label": "Reasons Why I Love You →",
+          "onClick": [{ "action": "navigate", "target": "next" }]
+        },
+        {
+          "id": "btn-letter-back",
+          "type": "button",
+          "variant": "secondary",
+          "label": "← Back",
+          "onClick": [{ "action": "navigate", "target": "prev" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-4",
+      "pageNumber": 4,
+      "key": "reasons",
+      "label": "Reasons",
+      "component": "MemoryCard",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "zoom", "initialScale": 0.95, "duration": 0.5 },
+        "exit":  { "type": "zoom", "exitScale": 0.95,   "duration": 0.5 }
+      },
+      "layout": { "alignment": "center", "direction": "column", "gap": "1.25rem" },
+      "content": {
+        "badge": { "text": "Reasons Why I Love You", "style": "pill" },
+        "heading": {
+          "template": "Reason {{currentIndex + 1}} of {{total}}",
+          "fontFamily": "serif"
+        },
+        "progressDots": {
+          "enabled": true,
+          "activeColor": "#e11d48",
+          "inactiveColor": "#fecdd3",
+          "completedColor": "#fda4af",
+          "activeSize": { "width": "1rem", "height": "0.625rem" },
+          "dotSize": "0.5rem"
+        },
+        "flashCard": {
+          "data": "{{reasons}}",
+          "glassmorphism": true,
+          "background": "linear-gradient(135deg, #fff1f2, #ffffff, #fdf2f8)",
+          "border": "#fecdd3",
+          "borderWidth": "2px",
+          "minHeight": "12.5rem",
+          "padding": "1.75rem 2rem",
+          "decorBlobs": [
+            { "position": "top-right", "color": "rgba(252,207,232,0.30)", "blur": "2rem" },
+            { "position": "bottom-left", "color": "rgba(251,207,232,0.30)", "blur": "1.25rem" }
+          ],
+          "icon": {
+            "type": "heart",
+            "background": "linear-gradient(135deg, #e11d48, #ec4899)",
+            "size": 22,
+            "color": "#ffffff"
+          },
+          "indexBadge": { "template": "#{{currentIndex + 1}}", "style": "pill" },
+          "text": {
+            "template": "\"{{item}}\"",
+            "fontFamily": "serif",
+            "fontStyle": "italic",
+            "fontWeight": "medium",
+            "fontSize": "body"
+          },
+          "swipe": {
+            "enabled": true,
+            "threshold": 40
+          },
+          "animation": {
+            "enter": { "type": "slide", "x": 60, "rotateY": 15, "duration": 0.35 },
+            "exit":  { "type": "slide", "x": -60,"rotateY": -15,"duration": 0.35 }
+          }
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-reason-prev",
+          "type": "button",
+          "variant": "secondary",
+          "label": "← Previous",
+          "iconLeft": "arrow-left",
+          "disabled": "{{currentIndex === 0}}",
+          "onClick": [{ "action": "prevCard" }]
+        },
+        {
+          "id": "btn-reason-next",
+          "type": "button",
+          "variant": "primary",
+          "label": "Next",
+          "iconRight": "arrow-right",
+          "showWhen": "{{currentIndex < total - 1}}",
+          "onClick": [
+            { "action": "nextCard" },
+            { "action": "confetti", "preset": "confettiMini" }
+          ]
+        },
+        {
+          "id": "btn-reason-continue",
+          "type": "button",
+          "variant": "primary",
+          "label": "See Memories",
+          "iconRight": "chevron-right",
+          "showWhen": "{{currentIndex === total - 1}}",
+          "onClick": [{ "action": "navigate", "target": "next" }]
+        },
+        {
+          "id": "btn-reason-back",
+          "type": "link",
+          "label": "← Back to Letter",
+          "onClick": [{ "action": "navigate", "target": "prev" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-5",
+      "pageNumber": 5,
+      "key": "memories",
+      "label": "Memories",
+      "component": "Timeline",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "slide", "initialY": 20, "duration": 0.5 },
+        "exit":  { "type": "slide", "exitY": -20,  "duration": 0.5 }
+      },
+      "layout": { "alignment": "start", "direction": "column", "gap": "1.25rem" },
+      "content": {
+        "badge":   { "text": "Our Story",   "style": "pill" },
+        "heading": { "text": "Our Journey", "fontFamily": "serif" },
+        "caption": { "text": "Milestones of our beautiful bond ❤️" },
+        "timeline": {
+          "data": "{{gallery}}",
+          "maxItems": 4,
+          "lineColor": "#fda4af",
+          "lineWidth": "2px",
+          "dotColor": "#e11d48",
+          "dotSize": "1rem",
+          "dotBorder": "#ffffff",
+          "itemAnimation": {
+            "type": "slide",
+            "x": 20,
+            "delayStep": 0.1
+          },
+          "showDate": true,
+          "showCaption": true,
+          "dateStyle": "pill",
+          "dateIcon": "calendar",
+          "captionStyle": "italic"
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-memories-next",
+          "type": "button",
+          "variant": "primary",
+          "label": "Photo Gallery →",
+          "onClick": [{ "action": "navigate", "target": "next" }]
+        },
+        {
+          "id": "btn-memories-back",
+          "type": "button",
+          "variant": "secondary",
+          "label": "← Back",
+          "onClick": [{ "action": "navigate", "target": "prev" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-6",
+      "pageNumber": 6,
+      "key": "gallery",
+      "label": "Gallery",
+      "component": "Gallery",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "slide", "initialY": 20, "duration": 0.5 },
+        "exit":  { "type": "slide", "exitY": -20,  "duration": 0.5 }
+      },
+      "layout": { "alignment": "center", "direction": "column", "gap": "1.25rem" },
+      "content": {
+        "badge":   { "text": "Precious Moments", "style": "pill" },
+        "heading": { "text": "Our Memories", "fontFamily": "serif", "icon": "image" },
+        "hint":    { "text": "Tap any photo to enlarge" },
+        "grid": {
+          "data": "{{gallery}}",
+          "columns": 2,
+          "gap": "0.75rem",
+          "maxHeight": "55vh",
+          "scrollable": true,
+          "itemShape": "square",
+          "itemRadius": "0.75rem",
+          "itemBorder": "#fecdd3",
+          "itemShadow": "0 4px 12px rgba(225,29,72,0.10)",
+          "hoverScale": 1.03,
+          "tapScale": 0.97,
+          "overlay": {
+            "gradient": "from-rose-950/90 via-rose-950/20 to-transparent",
+            "showDate": true,
+            "showCaption": true,
+            "dateIcon": "calendar",
+            "captionLines": 2
+          },
+          "lightbox": {
+            "enabled": true,
+            "background": "rgba(0,0,0,0.90)",
+            "blur": "12px",
+            "animation": "fade"
+          }
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-gallery-next",
+          "type": "button",
+          "variant": "primary",
+          "label": "Music 🎵 →",
+          "onClick": [{ "action": "navigate", "target": "next" }]
+        },
+        {
+          "id": "btn-gallery-back",
+          "type": "button",
+          "variant": "secondary",
+          "label": "← Back",
+          "onClick": [{ "action": "navigate", "target": "prev" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-7",
+      "pageNumber": 7,
+      "key": "music",
+      "label": "Music",
+      "component": "Music",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "slide", "initialX": 20, "duration": 0.5 },
+        "exit":  { "type": "slide", "exitX": -20,  "duration": 0.5 }
+      },
+      "layout": { "alignment": "center", "direction": "column", "gap": "1.25rem" },
+      "content": {
+        "badge":   { "text": "🎵 Our Song", "style": "pill" },
+        "heading": { "text": "Background Serenade", "fontFamily": "serif" },
+        "player": {
+          "track": "{{music}}",
+          "glassmorphism": true,
+          "playButton": {
+            "shape": "circle",
+            "size": "3.5rem",
+            "background": "#e11d48",
+            "hoverBackground": "#be123c",
+            "shadow": "0 8px 24px rgba(225,29,72,0.35)",
+            "iconColor": "#ffffff",
+            "iconSize": 22
+          },
+          "trackName": {
+            "variable": "{{music.name}}",
+            "fallback": "Love Melody",
+            "truncate": true,
+            "fontWeight": "bold"
+          },
+          "status": {
+            "playing": "♫ Playing now…",
+            "paused": "Tap to play"
+          },
+          "muteButton": { "enabled": true },
+          "waveform": {
+            "enabled": true,
+            "bars": 20,
+            "barColor": "#fda4af",
+            "barWidth": "0.375rem",
+            "barRadius": "9999px",
+            "maxHeight": 45,
+            "animation": {
+              "type": "pulse",
+              "durationMin": 0.6,
+              "durationStep": 0.15,
+              "delayStep": 0.05
+            }
+          }
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-music-next",
+          "type": "button",
+          "variant": "primary",
+          "label": "Certificate 🏆 →",
+          "onClick": [{ "action": "navigate", "target": "next" }]
+        },
+        {
+          "id": "btn-music-back",
+          "type": "button",
+          "variant": "secondary",
+          "label": "← Back",
+          "onClick": [{ "action": "navigate", "target": "prev" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-8",
+      "pageNumber": 8,
+      "key": "certificate",
+      "label": "Certificate",
+      "component": "Certificate",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "zoom", "initialScale": 0.92, "duration": 0.5 },
+        "exit":  { "type": "zoom", "exitScale": 0.92,   "duration": 0.5 }
+      },
+      "layout": { "alignment": "center", "direction": "column", "gap": "1rem" },
+      "content": {
+        "badge": { "text": "🏆 Official Certificate", "style": "pill", "badgeBg": "bg-amber-100 text-amber-700" },
+        "heading": {
+          "resolveFrom": "certificateType",
+          "map": {
+            "Best Friend": "Certificate of Friendship",
+            "Husband":     "Certificate of Forever",
+            "Wife":        "Certificate of Forever",
+            "_default":    "Certificate of Love"
+          },
+          "fontFamily": "serif"
+        },
+        "certificate": {
+          "recipientName":  "{{certificateName}}",
+          "presentedBy":    "{{presentedBy}}",
+          "award":          "{{award}}",
+          "certificateType":"{{certificateType}}",
+          "personalMessage":"{{personalMessage}}",
+          "date":           "{{date}}",
+          "allowDownload":  true,
+          "typeThemes": {
+            "Girlfriend": {
+              "title": "Certificate of Love",
+              "subtitle": "Official Award of Love",
+              "body": "is hereby recognized and celebrated as the most wonderful",
+              "tagline": "For infinite love, endless smiles, and everlasting companionship.",
+              "icon": "heart",
+              "accentColor": "#e11d48",
+              "borderColor": "#fecdd3",
+              "sealGradient": ["#f43f5e", "#ec4899", "#fda4af"],
+              "outerBg": "#FFFDF9"
+            },
+            "Boyfriend": {
+              "title": "Certificate of Love",
+              "subtitle": "Official Award of Love",
+              "body": "is hereby recognized and celebrated as the most wonderful",
+              "tagline": "For courage, loyalty, and the warmth that fills every room.",
+              "icon": "heart",
+              "accentColor": "#2563eb",
+              "borderColor": "#bfdbfe",
+              "sealGradient": ["#3b82f6", "#6366f1", "#bfdbfe"],
+              "outerBg": "#F8FAFF"
+            },
+            "Best Friend": {
+              "title": "Certificate of Friendship",
+              "subtitle": "Official BFF Recognition",
+              "body": "is hereby celebrated and honored as the most incredible",
+              "tagline": "For laughter, loyalty, and a bond that time cannot break.",
+              "icon": "star",
+              "accentColor": "#d97706",
+              "borderColor": "#fde68a",
+              "sealGradient": ["#f59e0b", "#d97706", "#fde68a"],
+              "outerBg": "#FFFEF5"
+            },
+            "Husband": {
+              "title": "Certificate of Forever",
+              "subtitle": "A Vow of Eternal Love",
+              "body": "is hereby celebrated and adored as the most devoted",
+              "tagline": "For steadfast love, cherished memories, and a lifetime together.",
+              "icon": "ribbon",
+              "accentColor": "#7c3aed",
+              "borderColor": "#ddd6fe",
+              "sealGradient": ["#8b5cf6", "#7c3aed", "#ddd6fe"],
+              "outerBg": "#FAFAFF"
+            },
+            "Wife": {
+              "title": "Certificate of Forever",
+              "subtitle": "A Vow of Eternal Love",
+              "body": "is hereby celebrated and adored as the most devoted",
+              "tagline": "For grace, love, and the beauty you bring into every day.",
+              "icon": "ribbon",
+              "accentColor": "#be185d",
+              "borderColor": "#fbcfe8",
+              "sealGradient": ["#ec4899", "#be185d", "#fbcfe8"],
+              "outerBg": "#FFF8FC"
+            }
+          }
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-cert-next",
+          "type": "button",
+          "variant": "primary",
+          "label": "Final Surprise 🎁 →",
+          "onClick": [{ "action": "navigate", "target": "next" }]
+        },
+        {
+          "id": "btn-cert-back",
+          "type": "button",
+          "variant": "secondary",
+          "label": "← Back",
+          "onClick": [{ "action": "navigate", "target": "prev" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-9",
+      "pageNumber": 9,
+      "key": "final",
+      "label": "Final",
+      "component": "Ending",
+      "showInProgress": false,
+      "transition": {
+        "enter": { "type": "zoom", "initialScale": 0.92, "duration": 0.6 },
+        "exit":  { "type": "zoom", "exitScale": 0.92,   "duration": 0.6 }
+      },
+      "layout": { "alignment": "center", "direction": "column", "justify": "center" },
+      "content": {
+        "catBouquet": {
+          "component": "BouquetGoodbyeCat",
+          "partnerName":  "{{partnerName}}",
+          "creatorName":  "{{yourName}}",
+          "finalMessage": "{{finalMessage}}",
+          "fallbackMessage": "Thank you for being mine. I love you endlessly! ❤️"
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-final-replay",
+          "type": "button",
+          "variant": "primary",
+          "label": "💕 Replay Our Story",
+          "onClick": [
+            { "action": "navigate", "target": "page-1" },
+            { "action": "resetState" }
+          ]
+        },
+        {
+          "id": "btn-final-share",
+          "type": "button",
+          "variant": "secondary",
+          "label": "📤 Share This Surprise",
+          "onClick": [
+            { "action": "share", "title": "{{title}}", "url": "{{shareUrl}}" }
+          ]
+        },
+        {
+          "id": "btn-final-back",
+          "type": "link",
+          "label": "← Back to Certificate",
+          "onClick": [{ "action": "navigate", "target": "prev" }]
+        }
+      ]
+    }
+  ],
+
+  "navigation": [
+    {
+      "id": "nav-welcome-to-cover",
+      "from": "page-1",
+      "trigger": "btn-open",
+      "to": "page-2",
+      "condition": null
+    },
+    {
+      "id": "nav-cover-next",
+      "from": "page-2",
+      "trigger": "btn-gift-skip",
+      "to": "page-3",
+      "condition": null
+    },
+    {
+      "id": "nav-cover-back",
+      "from": "page-2",
+      "trigger": "btn-gift-back",
+      "to": "page-1",
+      "condition": null
+    },
+    {
+      "id": "nav-letter-next",
+      "from": "page-3",
+      "trigger": "btn-letter-next",
+      "to": "page-4",
+      "condition": null
+    },
+    {
+      "id": "nav-letter-back",
+      "from": "page-3",
+      "trigger": "btn-letter-back",
+      "to": "page-2",
+      "condition": null
+    },
+    {
+      "id": "nav-reasons-continue",
+      "from": "page-4",
+      "trigger": "btn-reason-continue",
+      "to": "page-5",
+      "condition": "{{currentIndex === total - 1}}"
+    },
+    {
+      "id": "nav-reasons-back",
+      "from": "page-4",
+      "trigger": "btn-reason-back",
+      "to": "page-3",
+      "condition": null
+    },
+    {
+      "id": "nav-memories-next",
+      "from": "page-5",
+      "trigger": "btn-memories-next",
+      "to": "page-6",
+      "condition": null
+    },
+    {
+      "id": "nav-memories-back",
+      "from": "page-5",
+      "trigger": "btn-memories-back",
+      "to": "page-4",
+      "condition": null
+    },
+    {
+      "id": "nav-gallery-next",
+      "from": "page-6",
+      "trigger": "btn-gallery-next",
+      "to": "page-7",
+      "condition": null
+    },
+    {
+      "id": "nav-gallery-back",
+      "from": "page-6",
+      "trigger": "btn-gallery-back",
+      "to": "page-5",
+      "condition": null
+    },
+    {
+      "id": "nav-music-next",
+      "from": "page-7",
+      "trigger": "btn-music-next",
+      "to": "page-8",
+      "condition": null
+    },
+    {
+      "id": "nav-music-back",
+      "from": "page-7",
+      "trigger": "btn-music-back",
+      "to": "page-6",
+      "condition": null
+    },
+    {
+      "id": "nav-cert-next",
+      "from": "page-8",
+      "trigger": "btn-cert-next",
+      "to": "page-9",
+      "condition": null
+    },
+    {
+      "id": "nav-cert-back",
+      "from": "page-8",
+      "trigger": "btn-cert-back",
+      "to": "page-7",
+      "condition": null
+    },
+    {
+      "id": "nav-final-replay",
+      "from": "page-9",
+      "trigger": "btn-final-replay",
+      "to": "page-1",
+      "condition": null
+    },
+    {
+      "id": "nav-final-back",
+      "from": "page-9",
+      "trigger": "btn-final-back",
+      "to": "page-8",
+      "condition": null
+    }
+  ],
+
+  "ending": {
+    "pageId": "page-9",
+    "onReplay": { "action": "navigate", "target": "page-1", "resetState": true },
+    "onShare": {
+      "action": "share",
+      "native": true,
+      "fallback": "copyToClipboard",
+      "payload": { "title": "{{title}}", "url": "{{shareUrl}}" }
+    }
+  }
+}
