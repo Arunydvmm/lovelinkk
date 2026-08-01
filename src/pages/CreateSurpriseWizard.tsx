@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart,
@@ -17,6 +17,7 @@ import {
   Ribbon,
   Star,
   Loader2,
+  CloudUpload,
 } from 'lucide-react';
 import { MemoryImage, SurpriseData, AwardType, CertificateType } from '../types';
 import {
@@ -29,6 +30,7 @@ import {
   StoryTemplate,
 } from '../presets';
 import { SurpriseThemeView } from '../components/SurpriseThemeView';
+import { SmartImage } from '../components/SmartImage';
 import { api } from '../api';
 import {
   validateImageFile,
@@ -99,6 +101,13 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
   const [uploadingMemories, setUploadingMemories] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string>('');
   const [cloudinaryEnabled, setCloudinaryEnabled] = useState<boolean | null>(null);
+  // drag-over highlight state
+  const [coverDragOver, setCoverDragOver] = useState<boolean>(false);
+  const [memoriesDragOver, setMemoriesDragOver] = useState<boolean>(false);
+  // upload progress (0-100) and file count tracking
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadTotal, setUploadTotal] = useState<number>(0);
+  const [uploadDone, setUploadDone] = useState<number>(0);
 
   // Check once on mount whether Cloudinary is configured on the server
   useEffect(() => {
@@ -232,12 +241,8 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
     ]);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []) as File[];
-    if (files.length === 0) return;
-    // reset so the same file can be re-selected if needed
-    e.target.value = '';
-
+  // ─── shared helper: upload an array of Files as memory images ───
+  const uploadMemoryFiles = useCallback(async (files: File[]) => {
     setUploadError('');
     const slotsLeft = 20 - memories.length;
     const toUpload = files.slice(0, slotsLeft);
@@ -247,16 +252,19 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
       return;
     }
 
-    // Validate all files before starting any upload
     for (const file of toUpload) {
       const err = validateImageFile(file);
       if (err) { setUploadError(err); return; }
     }
 
+    setUploadTotal(toUpload.length);
+    setUploadDone(0);
+    setUploadProgress(0);
     setUploadingMemories(true);
     try {
       const uploaded: MemoryImage[] = [];
-      for (const file of toUpload) {
+      for (let i = 0; i < toUpload.length; i++) {
+        const file = toUpload[i];
         const compressed = await compressImage(file);
         const dataUrl = await readFileAsDataUrl(compressed);
         const { url } = await withUploadRetry(() => api.uploadMedia(dataUrl, 'image'));
@@ -266,35 +274,75 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
           caption: 'Our special memory',
           date: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
         });
+        const done = i + 1;
+        setUploadDone(done);
+        setUploadProgress(Math.round((done / toUpload.length) * 100));
       }
       setMemories(prev => [...prev, ...uploaded]);
     } catch (err: any) {
       setUploadError(err.message || 'Upload failed. Please try again.');
     } finally {
       setUploadingMemories(false);
+      setUploadProgress(0);
+      setUploadTotal(0);
+      setUploadDone(0);
     }
+  }, [memories.length]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []) as File[];
+    if (files.length === 0) return;
+    e.target.value = '';
+    await uploadMemoryFiles(files);
   };
 
-  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    e.target.value = '';
-
+  // ─── shared helper: upload a single File as cover ───
+  const uploadCoverFile = useCallback(async (file: File) => {
     const err = validateImageFile(file);
     if (err) { setUploadError(err); return; }
 
     setUploadError('');
+    setUploadTotal(1);
+    setUploadDone(0);
+    setUploadProgress(0);
     setUploadingCover(true);
     try {
       const compressed = await compressImage(file);
       const dataUrl = await readFileAsDataUrl(compressed);
       const { url } = await withUploadRetry(() => api.uploadMedia(dataUrl, 'image'));
       setCoverImage(url);
+      setUploadDone(1);
+      setUploadProgress(100);
     } catch (err: any) {
       setUploadError(err.message || 'Cover upload failed. Please try again.');
     } finally {
       setUploadingCover(false);
+      setUploadProgress(0);
+      setUploadTotal(0);
+      setUploadDone(0);
     }
+  }, []);
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    await uploadCoverFile(file);
+  };
+
+  // ─── Drag-and-drop handlers ───
+  const handleCoverDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setCoverDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) uploadCoverFile(file);
+  };
+
+  const handleMemoriesDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setMemoriesDragOver(false);
+    const files = Array.from(e.dataTransfer.files ?? []) as File[];
+    if (files.length > 0) uploadMemoryFiles(files);
   };
 
   const handleAddReason = () => {
@@ -573,15 +621,24 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
               </div>
             )}
 
-            <div className="relative border-2 border-dashed border-slate-700 hover:border-rose-500/50 rounded-2xl p-4 text-center transition-colors">
-              {uploadingCover ? (
-                <div className="h-52 flex flex-col items-center justify-center gap-3 text-slate-400">
-                  <Loader2 size={32} className="animate-spin text-rose-400" />
-                  <p className="text-xs font-semibold">Uploading to Cloudinary…</p>
-                </div>
-              ) : coverImage ? (
+            <div
+              onDrop={handleCoverDrop}
+              onDragOver={e => { e.preventDefault(); setCoverDragOver(true); }}
+              onDragLeave={() => setCoverDragOver(false)}
+              className={`relative border-2 border-dashed rounded-2xl p-4 text-center transition-colors ${
+                coverDragOver
+                  ? 'border-rose-400 bg-rose-950/40 scale-[1.01]'
+                  : 'border-slate-700 hover:border-rose-500/50'
+              }`}
+            >
+              {coverImage ? (
                 <div className="relative h-52 w-full rounded-xl overflow-hidden group">
-                  <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
+                  <SmartImage
+                    src={coverImage}
+                    alt="Cover"
+                    className="h-52 w-full rounded-xl"
+                    rootMargin="0px"
+                  />
                   <button
                     type="button"
                     onClick={() => setCoverImage('')}
@@ -593,7 +650,9 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
               ) : (
                 <label className="cursor-pointer space-y-3 block py-6">
                   <ImageIcon size={40} className="mx-auto text-rose-400" />
-                  <p className="text-sm text-slate-300 font-medium">Click to upload cover photo</p>
+                  <p className="text-sm text-slate-300 font-medium">
+                    {coverDragOver ? 'Drop to upload!' : 'Click or drag & drop cover photo'}
+                  </p>
                   <p className="text-[11px] text-slate-500">JPG, PNG, WebP — if skipped, first memory photo is used automatically</p>
                   <input type="file" accept="image/*" onChange={handleCoverUpload} disabled={uploadingCover} className="hidden" />
                 </label>
@@ -724,25 +783,27 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
               </div>
             )}
 
-            <div className="border-2 border-dashed border-rose-500/30 bg-rose-950/20 hover:border-rose-500/60 rounded-2xl p-6 text-center space-y-3 cursor-pointer transition-colors">
-              {uploadingMemories ? (
-                <div className="flex flex-col items-center gap-2 py-2 text-slate-400">
-                  <Loader2 size={28} className="animate-spin text-rose-400" />
-                  <p className="text-xs font-semibold">Compressing &amp; uploading to Cloudinary…</p>
-                </div>
-              ) : (
-                <>
-                  <Upload size={36} className="mx-auto text-rose-400" />
-                  <div>
-                    <p className="text-sm font-bold text-white">Drag & drop your photos here</p>
-                    <p className="text-xs text-slate-400">JPG, PNG, WebP — up to 20 photos</p>
-                  </div>
-                  <label className="inline-block px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md cursor-pointer min-h-[40px]">
-                    Choose Files
-                    <input type="file" multiple accept="image/*" onChange={handleFileUpload} disabled={uploadingMemories} className="hidden" />
-                  </label>
-                </>
-              )}
+            <div
+              onDrop={handleMemoriesDrop}
+              onDragOver={e => { e.preventDefault(); setMemoriesDragOver(true); }}
+              onDragLeave={() => setMemoriesDragOver(false)}
+              className={`border-2 border-dashed rounded-2xl p-6 text-center space-y-3 transition-colors ${
+                memoriesDragOver
+                  ? 'border-rose-400 bg-rose-950/50 scale-[1.01]'
+                  : 'border-rose-500/30 bg-rose-950/20 hover:border-rose-500/60'
+              }`}
+            >
+              <Upload size={36} className="mx-auto text-rose-400" />
+              <div>
+                <p className="text-sm font-bold text-white">
+                  {memoriesDragOver ? 'Drop your photos!' : 'Drag & drop your photos here'}
+                </p>
+                <p className="text-xs text-slate-400">JPG, PNG, WebP — up to 20 photos</p>
+              </div>
+              <label className="inline-block px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md cursor-pointer min-h-[40px]">
+                Choose Files
+                <input type="file" multiple accept="image/*" onChange={handleFileUpload} disabled={uploadingMemories} className="hidden" />
+              </label>
             </div>
 
             <div className="space-y-2">
@@ -753,7 +814,12 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-60 overflow-y-auto pr-1">
                 {memories.map((mem, idx) => (
                   <div key={mem.id || idx} className="relative bg-slate-950 border border-slate-800 rounded-xl overflow-hidden p-1.5 space-y-1">
-                    <img src={mem.url} alt="Memory" className="w-full h-24 object-cover rounded-lg" />
+                    <SmartImage
+                      src={mem.url}
+                      alt="Memory"
+                      className="h-24 w-full rounded-lg"
+                      rootMargin="200px"
+                    />
                     <button
                       type="button"
                       onClick={() => setMemories(memories.filter((_, i) => i !== idx))}
@@ -1029,6 +1095,50 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
           </motion.div>
         )}
 
+      </AnimatePresence>
+
+      {/* ─── Upload Progress Popup Overlay ─── */}
+      <AnimatePresence>
+        {(uploadingCover || uploadingMemories) && (
+          <motion.div
+            initial={{ opacity: 0, y: 40, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 40, scale: 0.96 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[min(92vw,360px)] bg-slate-900 border border-rose-500/40 rounded-2xl shadow-2xl shadow-rose-900/40 p-5 flex flex-col gap-3"
+          >
+            {/* Header */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-600/20 flex items-center justify-center flex-shrink-0">
+                <CloudUpload size={20} className="text-rose-400 animate-pulse" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-white leading-tight">
+                  {uploadingCover ? 'Uploading cover photo…' : `Uploading photo${uploadTotal > 1 ? 's' : ''}…`}
+                </p>
+                {uploadTotal > 1 && (
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    {uploadDone} of {uploadTotal} done
+                  </p>
+                )}
+              </div>
+              <span className="text-xs font-bold text-rose-400 flex-shrink-0">{uploadProgress}%</span>
+            </div>
+
+            {/* Progress bar */}
+            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-rose-600 to-pink-400 rounded-full"
+                animate={{ width: `${uploadProgress || 5}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+
+            <p className="text-[10px] text-slate-500 text-center leading-relaxed">
+              Compressing &amp; uploading to Cloudinary — please don't close the tab
+            </p>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );
