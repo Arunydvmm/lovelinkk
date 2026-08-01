@@ -61,6 +61,11 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 
 export const api = {
   // Media (Cloudinary)
+  async getUploadStatus(): Promise<{ cloudinaryEnabled: boolean }> {
+    const res = await fetch(`${API_BASE}/upload/status`);
+    return res.json();
+  },
+
   async uploadMedia(dataUrl: string, resourceType: 'image' | 'audio' = 'image'): Promise<{ url: string; publicId: string }> {
     return fetchWithAuth(`${API_BASE}/upload`, {
       method: 'POST',

@@ -10,8 +10,18 @@ services:
         value: production
       - key: JWT_SECRET
         generateValue: true
+      # Admin login credentials — set these in Render dashboard
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Legacy passcode kept for backward compat — can leave blank if ADMIN_PASSWORD is set
       - key: ADMIN_PASSCODE
         sync: false
+      # Google Sign-In client ID
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      # Cloudinary — required for photo & audio uploads
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY

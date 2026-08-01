@@ -449,6 +449,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Diagnostic: lets the frontend know whether Cloudinary is configured
+app.get('/api/upload/status', (_req, res) => {
+  return res.json({ cloudinaryEnabled: CLOUDINARY_ENABLED });
+});
+
 // MEDIA UPLOAD ROUTE (Cloudinary)
 // Accepts a base64 data URL and uploads it to Cloudinary, returning the hosted URL.
 app.post('/api/upload', authenticateToken, async (req: any, res: any) => {
@@ -459,19 +464,23 @@ app.post('/api/upload', authenticateToken, async (req: any, res: any) => {
   }
 
   if (!CLOUDINARY_ENABLED) {
-    return res.status(503).json({ error: 'Media storage is not configured on the server (missing Cloudinary credentials).' });
+    console.error('[LoveLink] Upload attempted but CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET are not set.');
+    return res.status(503).json({
+      error: 'Photo uploads are not configured yet. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET in your Render environment variables.',
+      cloudinaryMissing: true,
+    });
   }
 
   try {
     const result = await cloudinary.uploader.upload(dataUrl, {
       folder: folder || 'lovelink',
-      resource_type: resourceType === 'audio' ? 'video' : 'image', // Cloudinary treats audio under "video" resource_type
+      resource_type: resourceType === 'audio' ? 'video' : 'image',
     });
 
     return res.json({ url: result.secure_url, publicId: result.public_id });
   } catch (err: any) {
-    console.error('Cloudinary upload failed', err);
-    return res.status(500).json({ error: 'Media upload failed. Please try again.' });
+    console.error('[LoveLink] Cloudinary upload failed:', err?.message || err);
+    return res.status(500).json({ error: `Media upload failed: ${err?.message || 'unknown error'}` });
   }
 });
 

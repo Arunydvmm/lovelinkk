@@ -54,6 +54,13 @@ export const WizardPage: React.FC<WizardPageProps> = ({ editSurpriseId, onNaviga
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [uploadingMusic, setUploadingMusic] = useState<boolean>(false);
+  const [cloudinaryEnabled, setCloudinaryEnabled] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    api.getUploadStatus()
+      .then(s => setCloudinaryEnabled(s.cloudinaryEnabled))
+      .catch(() => setCloudinaryEnabled(false));
+  }, []);
 
   // Form State
   const [creatorName, setCreatorName] = useState<string>(user?.name.split(' ')[0] || '');
@@ -526,6 +533,12 @@ export const WizardPage: React.FC<WizardPageProps> = ({ editSurpriseId, onNaviga
         {/* STEP 2: UPLOAD MEMORIES */}
         {step === 2 && (
           <div className="space-y-6 max-w-2xl mx-auto animate-fadeIn">
+            {cloudinaryEnabled === false && (
+              <div className="px-4 py-3 bg-amber-50 border border-amber-400 text-amber-800 text-xs rounded-2xl space-y-1">
+                <p className="font-bold">⚠️ Photo uploads not available</p>
+                <p>Cloudinary is not configured on the server. Set <strong>CLOUDINARY_CLOUD_NAME</strong>, <strong>CLOUDINARY_API_KEY</strong>, and <strong>CLOUDINARY_API_SECRET</strong> in your Render environment, then redeploy.</p>
+              </div>
+            )}
             <div className="text-center space-y-2">
               <h2 className="text-3xl font-serif italic text-[#1A1A1A]">Upload Your Memories</h2>
               <p className="text-xs text-[#1A1A1A]/60">

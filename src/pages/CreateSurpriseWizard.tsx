@@ -98,6 +98,14 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
   const [uploadingCover, setUploadingCover] = useState<boolean>(false);
   const [uploadingMemories, setUploadingMemories] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string>('');
+  const [cloudinaryEnabled, setCloudinaryEnabled] = useState<boolean | null>(null);
+
+  // Check once on mount whether Cloudinary is configured on the server
+  useEffect(() => {
+    api.getUploadStatus()
+      .then(s => setCloudinaryEnabled(s.cloudinaryEnabled))
+      .catch(() => setCloudinaryEnabled(false));
+  }, []);
 
   // Load draft on first mount (only when creating new)
   const draft = initialData ? null : loadDraft();
@@ -552,6 +560,13 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
               <p className="text-xs text-slate-400">Upload a special cover photo (shown on the welcome screen). Optional — defaults to first memory.</p>
             </div>
 
+            {cloudinaryEnabled === false && (
+              <div className="px-4 py-3 bg-amber-950/60 border border-amber-500/40 text-amber-300 text-xs rounded-xl space-y-1">
+                <p className="font-bold">⚠️ Cloudinary not configured</p>
+                <p>Photo uploads won't work until you set <code className="bg-black/30 px-1 rounded">CLOUDINARY_CLOUD_NAME</code>, <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_KEY</code>, and <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_SECRET</code> in your Render environment variables.</p>
+              </div>
+            )}
+
             {uploadError && (
               <div className="px-4 py-3 bg-rose-950/60 border border-rose-500/30 text-rose-300 text-xs rounded-xl">
                 {uploadError}
@@ -695,6 +710,13 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
               <h2 className="text-2xl font-extrabold text-white">Memory Photos</h2>
               <p className="text-xs text-slate-400">Upload 5–20 photos of your beautiful moments together</p>
             </div>
+
+            {cloudinaryEnabled === false && (
+              <div className="px-4 py-3 bg-amber-950/60 border border-amber-500/40 text-amber-300 text-xs rounded-xl space-y-1">
+                <p className="font-bold">⚠️ Cloudinary not configured</p>
+                <p>Photo uploads won't work until you set <code className="bg-black/30 px-1 rounded">CLOUDINARY_CLOUD_NAME</code>, <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_KEY</code>, and <code className="bg-black/30 px-1 rounded">CLOUDINARY_API_SECRET</code> in your Render environment variables.</p>
+              </div>
+            )}
 
             {uploadError && (
               <div className="px-4 py-3 bg-rose-950/60 border border-rose-500/30 text-rose-300 text-xs rounded-xl">
