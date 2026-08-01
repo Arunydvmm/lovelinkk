@@ -135,6 +135,9 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
         date: s.date,
       }))
   );
+  // ref always points at the latest memories array — used by upload callbacks
+  // so they don't capture a stale closure value for the slot-count check
+  const memoriesRef = React.useRef(memories);
 
   const [welcomeMessage, setWelcomeMessage] = useState<string>(
     initialData?.welcomeMessage ?? draft?.welcomeMessage ?? 'Welcome to our special place ❤️ Every moment spent with you feels like magic.'
@@ -178,6 +181,9 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
   );
 
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+
+  // keep memoriesRef in sync
+  React.useEffect(() => { memoriesRef.current = memories; }, [memories]);
 
   // ─── Autosave to localStorage ───
   useEffect(() => {
@@ -244,7 +250,8 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
   // ─── shared helper: upload an array of Files as memory images ───
   const uploadMemoryFiles = useCallback(async (files: File[]) => {
     setUploadError('');
-    const slotsLeft = 20 - memories.length;
+    // read from ref so we always have the latest count, even from drag-drop closure
+    const slotsLeft = 20 - memoriesRef.current.length;
     const toUpload = files.slice(0, slotsLeft);
 
     if (toUpload.length === 0) {
@@ -259,7 +266,7 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
 
     setUploadTotal(toUpload.length);
     setUploadDone(0);
-    setUploadProgress(0);
+    setUploadProgress(2); // start at 2% so the bar is visible immediately
     setUploadingMemories(true);
     try {
       const uploaded: MemoryImage[] = [];
@@ -283,11 +290,10 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
       setUploadError(err.message || 'Upload failed. Please try again.');
     } finally {
       setUploadingMemories(false);
-      setUploadProgress(0);
-      setUploadTotal(0);
-      setUploadDone(0);
+      // small delay so the popup can animate out at 100% rather than snapping to 0
+      setTimeout(() => { setUploadProgress(0); setUploadTotal(0); setUploadDone(0); }, 400);
     }
-  }, [memories.length]);
+  }, []); // no deps — reads memories via ref
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []) as File[];
@@ -304,7 +310,7 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
     setUploadError('');
     setUploadTotal(1);
     setUploadDone(0);
-    setUploadProgress(0);
+    setUploadProgress(2); // start visible immediately
     setUploadingCover(true);
     try {
       const compressed = await compressImage(file);
@@ -317,9 +323,7 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
       setUploadError(err.message || 'Cover upload failed. Please try again.');
     } finally {
       setUploadingCover(false);
-      setUploadProgress(0);
-      setUploadTotal(0);
-      setUploadDone(0);
+      setTimeout(() => { setUploadProgress(0); setUploadTotal(0); setUploadDone(0); }, 400);
     }
   }, []);
 
@@ -333,6 +337,7 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
   // ─── Drag-and-drop handlers ───
   const handleCoverDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     setCoverDragOver(false);
     const file = e.dataTransfer.files?.[0];
     if (file) uploadCoverFile(file);
@@ -340,6 +345,7 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
 
   const handleMemoriesDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     setMemoriesDragOver(false);
     const files = Array.from(e.dataTransfer.files ?? []) as File[];
     if (files.length > 0) uploadMemoryFiles(files);
@@ -623,15 +629,44 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
 
             <div
               onDrop={handleCoverDrop}
-              onDragOver={e => { e.preventDefault(); setCoverDragOver(true); }}
-              onDragLeave={() => setCoverDragOver(false)}
-              className={`relative border-2 border-dashed rounded-2xl p-4 text-center transition-colors ${
+              onDragOver={e => { e.preventDefault(); e.stopPropagation(); setCoverDragOver(true); }}
+              onDragEnter={e => { e.preventDefault(); e.stopPropagation(); setCoverDragOver(true); }}
+              onDragLeave={e => { e.stopPropagation(); setCoverDragOver(false); }}
+              className={`relative border-2 border-dashed rounded-2xl p-4 text-center transition-all duration-200 ${
                 coverDragOver
-                  ? 'border-rose-400 bg-rose-950/40 scale-[1.01]'
+                  ? 'border-rose-400 bg-rose-950/40 scale-[1.02]'
+                  : uploadingCover
+                  ? 'border-rose-500/60 bg-slate-800/60'
                   : 'border-slate-700 hover:border-rose-500/50'
               }`}
             >
-              {coverImage ? (
+              {uploadingCover ? (
+                /* ── uploading state shown inside the zone ── */
+                <div className="h-52 flex flex-col items-center justify-center gap-4">
+                  <div className="relative w-16 h-16">
+                    <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+                      <circle cx="32" cy="32" r="28" fill="none" stroke="#1e293b" strokeWidth="6" />
+                      <circle
+                        cx="32" cy="32" r="28"
+                        fill="none"
+                        stroke="#f43f5e"
+                        strokeWidth="6"
+                        strokeLinecap="round"
+                        strokeDasharray={`${2 * Math.PI * 28}`}
+                        strokeDashoffset={`${2 * Math.PI * 28 * (1 - (uploadProgress || 2) / 100)}`}
+                        style={{ transition: 'stroke-dashoffset 0.35s ease' }}
+                      />
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-rose-400">
+                      {uploadProgress || 0}%
+                    </span>
+                  </div>
+                  <div className="text-center space-y-1">
+                    <p className="text-sm font-semibold text-white">Uploading cover…</p>
+                    <p className="text-[11px] text-slate-400">Compressing &amp; sending to Cloudinary</p>
+                  </div>
+                </div>
+              ) : coverImage ? (
                 <div className="relative h-52 w-full rounded-xl overflow-hidden group">
                   <SmartImage
                     src={coverImage}
@@ -651,7 +686,7 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
                 <label className="cursor-pointer space-y-3 block py-6">
                   <ImageIcon size={40} className="mx-auto text-rose-400" />
                   <p className="text-sm text-slate-300 font-medium">
-                    {coverDragOver ? 'Drop to upload!' : 'Click or drag & drop cover photo'}
+                    {coverDragOver ? '✦ Drop to upload!' : 'Click or drag & drop cover photo'}
                   </p>
                   <p className="text-[11px] text-slate-500">JPG, PNG, WebP — if skipped, first memory photo is used automatically</p>
                   <input type="file" accept="image/*" onChange={handleCoverUpload} disabled={uploadingCover} className="hidden" />
@@ -785,25 +820,58 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
 
             <div
               onDrop={handleMemoriesDrop}
-              onDragOver={e => { e.preventDefault(); setMemoriesDragOver(true); }}
-              onDragLeave={() => setMemoriesDragOver(false)}
-              className={`border-2 border-dashed rounded-2xl p-6 text-center space-y-3 transition-colors ${
+              onDragOver={e => { e.preventDefault(); e.stopPropagation(); setMemoriesDragOver(true); }}
+              onDragEnter={e => { e.preventDefault(); e.stopPropagation(); setMemoriesDragOver(true); }}
+              onDragLeave={e => { e.stopPropagation(); setMemoriesDragOver(false); }}
+              className={`border-2 border-dashed rounded-2xl p-6 text-center space-y-3 transition-all duration-200 ${
                 memoriesDragOver
-                  ? 'border-rose-400 bg-rose-950/50 scale-[1.01]'
+                  ? 'border-rose-400 bg-rose-950/50 scale-[1.02]'
+                  : uploadingMemories
+                  ? 'border-rose-500/60 bg-slate-800/60'
                   : 'border-rose-500/30 bg-rose-950/20 hover:border-rose-500/60'
               }`}
             >
-              <Upload size={36} className="mx-auto text-rose-400" />
-              <div>
-                <p className="text-sm font-bold text-white">
-                  {memoriesDragOver ? 'Drop your photos!' : 'Drag & drop your photos here'}
-                </p>
-                <p className="text-xs text-slate-400">JPG, PNG, WebP — up to 20 photos</p>
-              </div>
-              <label className="inline-block px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md cursor-pointer min-h-[40px]">
-                Choose Files
-                <input type="file" multiple accept="image/*" onChange={handleFileUpload} disabled={uploadingMemories} className="hidden" />
-              </label>
+              {uploadingMemories ? (
+                /* ── uploading state inside the zone ── */
+                <div className="flex flex-col items-center gap-3 py-2">
+                  {/* animated bar */}
+                  <div className="w-full max-w-xs mx-auto">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1.5">
+                      <span className="font-semibold text-white">
+                        {uploadDone < uploadTotal
+                          ? `Photo ${uploadDone + 1} of ${uploadTotal}`
+                          : `${uploadTotal} photo${uploadTotal > 1 ? 's' : ''} uploaded ✓`}
+                      </span>
+                      <span className="font-bold text-rose-400">{uploadProgress}%</span>
+                    </div>
+                    <div className="w-full h-2.5 bg-slate-700 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-rose-600 via-pink-500 to-rose-400 rounded-full"
+                        animate={{ width: `${uploadProgress || 2}%` }}
+                        transition={{ duration: 0.35 }}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                    <Loader2 size={12} className="animate-spin text-rose-400" />
+                    Compressing &amp; uploading to Cloudinary…
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <Upload size={36} className="mx-auto text-rose-400" />
+                  <div>
+                    <p className="text-sm font-bold text-white">
+                      {memoriesDragOver ? '✦ Drop your photos!' : 'Drag & drop your photos here'}
+                    </p>
+                    <p className="text-xs text-slate-400">JPG, PNG, WebP — up to 20 photos</p>
+                  </div>
+                  <label className="inline-block px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md cursor-pointer min-h-[40px]">
+                    Choose Files
+                    <input type="file" multiple accept="image/*" onChange={handleFileUpload} disabled={uploadingMemories} className="hidden" />
+                  </label>
+                </>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -1097,46 +1165,67 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
 
       </AnimatePresence>
 
-      {/* ─── Upload Progress Popup Overlay ─── */}
+      {/* ─── Global Upload Progress Toast ─── */}
       <AnimatePresence>
         {(uploadingCover || uploadingMemories) && (
           <motion.div
-            initial={{ opacity: 0, y: 40, scale: 0.96 }}
+            key="upload-toast"
+            initial={{ opacity: 0, y: 48, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 40, scale: 0.96 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[min(92vw,360px)] bg-slate-900 border border-rose-500/40 rounded-2xl shadow-2xl shadow-rose-900/40 p-5 flex flex-col gap-3"
+            exit={{ opacity: 0, y: 48, scale: 0.94 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[min(94vw,380px)] bg-[#0f172a] border border-rose-500/50 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden"
           >
-            {/* Header */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-600/20 flex items-center justify-center flex-shrink-0">
-                <CloudUpload size={20} className="text-rose-400 animate-pulse" />
+            {/* animated rose top-bar that fills as progress increases */}
+            <motion.div
+              className="h-1 bg-gradient-to-r from-rose-600 via-pink-500 to-rose-400"
+              animate={{ width: `${uploadProgress || 2}%` }}
+              transition={{ duration: 0.35 }}
+            />
+
+            <div className="p-4 flex items-center gap-3">
+              {/* spinning ring icon */}
+              <div className="relative w-11 h-11 flex-shrink-0">
+                <svg className="w-11 h-11 -rotate-90" viewBox="0 0 44 44">
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="#1e293b" strokeWidth="4" />
+                  <motion.circle
+                    cx="22" cy="22" r="18"
+                    fill="none"
+                    stroke="#f43f5e"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 18}`}
+                    animate={{ strokeDashoffset: 2 * Math.PI * 18 * (1 - (uploadProgress || 2) / 100) }}
+                    transition={{ duration: 0.35 }}
+                  />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-rose-400">
+                  {uploadProgress || 0}%
+                </span>
               </div>
+
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-white leading-tight">
-                  {uploadingCover ? 'Uploading cover photo…' : `Uploading photo${uploadTotal > 1 ? 's' : ''}…`}
+                  {uploadingCover
+                    ? 'Uploading cover photo…'
+                    : uploadDone < uploadTotal
+                    ? `Uploading photo ${uploadDone + 1} of ${uploadTotal}…`
+                    : `Processing ${uploadTotal} photo${uploadTotal > 1 ? 's' : ''}…`}
                 </p>
-                {uploadTotal > 1 && (
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {uploadDone} of {uploadTotal} done
-                  </p>
-                )}
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Compressing &amp; sending to Cloudinary
+                </p>
               </div>
-              <span className="text-xs font-bold text-rose-400 flex-shrink-0">{uploadProgress}%</span>
             </div>
 
-            {/* Progress bar */}
-            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+            {/* progress bar */}
+            <div className="mx-4 mb-4 h-2 bg-slate-800 rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-gradient-to-r from-rose-600 to-pink-400 rounded-full"
-                animate={{ width: `${uploadProgress || 5}%` }}
-                transition={{ duration: 0.3 }}
+                className="h-full bg-gradient-to-r from-rose-600 via-pink-500 to-rose-400 rounded-full"
+                animate={{ width: `${uploadProgress || 2}%` }}
+                transition={{ duration: 0.35 }}
               />
             </div>
-
-            <p className="text-[10px] text-slate-500 text-center leading-relaxed">
-              Compressing &amp; uploading to Cloudinary — please don't close the tab
-            </p>
           </motion.div>
         )}
       </AnimatePresence>
