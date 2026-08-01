@@ -94,7 +94,9 @@ export const WizardPage: React.FC<WizardPageProps> = ({ editSurpriseId, onNaviga
   useEffect(() => {
     if (editSurpriseId) {
       setLoading(true);
-      fetch(`/api/surprises/${editSurpriseId}`)
+      fetch(`/api/surprises/${editSurpriseId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
         .then(res => res.json())
         .then(data => {
           if (data.surprise) {
@@ -407,7 +409,7 @@ export const WizardPage: React.FC<WizardPageProps> = ({ editSurpriseId, onNaviga
   };
 
   const fullShareUrl = generatedSurprise
-    ? `${window.location.origin}/s/${generatedSurprise.id}`
+    ? `${window.location.origin}/s/${generatedSurprise.id}?token=${encodeURIComponent((generatedSurprise as any).viewToken || '')}`
     : '';
 
   const handleCopyLink = () => {

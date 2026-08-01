@@ -15,7 +15,7 @@ export const QRCodeModal: React.FC<QRCodeModalProps> = ({ surprise, onClose, onV
   const [qrUrl, setQrUrl] = useState<string>('');
 
   const fullUrl = surprise
-    ? `${window.location.origin}/s/${surprise.id}`
+    ? `${window.location.origin}/s/${surprise.id}?token=${encodeURIComponent((surprise as any).viewToken || '')}`
     : '';
 
   useEffect(() => {

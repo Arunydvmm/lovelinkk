@@ -48,6 +48,8 @@ interface MemoryImage {
 interface SurpriseData {
   id: string;
   userId: string;
+  /** Secret token embedded in every share link – required to view the surprise */
+  viewToken: string;
   creatorName: string;
   partnerName: string;
   title: string;
@@ -61,6 +63,8 @@ interface SurpriseData {
     recipientName: string;
     presentedBy: string;
     award: string;
+    certificateType?: string;
+    personalMessage?: string;
     date: string;
   };
   music: {
@@ -111,10 +115,21 @@ let users: User[] = [
   }
 ];
 
+/** Generate a cryptographically-safe 24-char URL token */
+function generateViewToken(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let token = '';
+  for (let i = 0; i < 24; i++) {
+    token += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return token;
+}
+
 let surprises: SurpriseData[] = [
   {
     id: 'priya-kabir',
     userId: 'u_1',
+    viewToken: 'demo_priya_kabir_token',
     creatorName: 'Priya',
     partnerName: 'Kabir',
     title: 'Our Love Story ❤️',
@@ -179,6 +194,7 @@ let surprises: SurpriseData[] = [
   {
     id: 'you-and-me',
     userId: 'u_1',
+    viewToken: 'demo_you_and_me_token',
     creatorName: 'Priya',
     partnerName: 'Kabir',
     title: 'You & Me Forever',
@@ -218,6 +234,7 @@ let surprises: SurpriseData[] = [
   {
     id: 'birthday-surprise',
     userId: 'u_1',
+    viewToken: 'demo_birthday_token',
     creatorName: 'Aarav',
     partnerName: 'Ananya',
     title: 'Happy Birthday My Sunshine ☀️',
@@ -257,6 +274,7 @@ let surprises: SurpriseData[] = [
   {
     id: 'long-distance-love',
     userId: 'u_1',
+    viewToken: 'demo_long_distance_token',
     creatorName: 'Rohan',
     partnerName: 'Maya',
     title: 'Miles Apart, Hearts Connected ✈️❤️',
@@ -296,6 +314,7 @@ let surprises: SurpriseData[] = [
   {
     id: 'forever-yours',
     userId: 'u_1',
+    viewToken: 'demo_forever_yours_token',
     creatorName: 'Vikram',
     partnerName: 'Neha',
     title: 'Will You Marry Me? 💍',
@@ -354,6 +373,15 @@ function loadData() {
       if (parsed.surprises) surprises = parsed.surprises;
       if (parsed.siteSettings) siteSettings = parsed.siteSettings;
     }
+    // Backfill viewToken for any existing surprises that predate this feature
+    let needsSave = false;
+    for (const s of surprises) {
+      if (!s.viewToken) {
+        s.viewToken = generateViewToken();
+        needsSave = true;
+      }
+    }
+    if (needsSave) saveData();
   } catch (err) {
     console.error('Failed to load data file, using defaults', err);
   }
@@ -594,24 +622,52 @@ app.get('/api/surprises', authenticateToken, (req: any, res: any) => {
   return res.json({ surprises: mySurprises });
 });
 
-// Get single surprise public or private
-app.get('/api/surprises/:id', (req, res) => {
+// Get single surprise — requires the per-surprise viewToken in the query string.
+// This means only people who have the full share link (or QR code) can see it.
+app.get('/api/surprises/:id', (req: any, res: any) => {
   const { id } = req.params;
-  const surprise = surprises.find(s => s.id === id);
+  const { token: viewToken } = req.query;
 
+  const surprise = surprises.find(s => s.id === id);
   if (!surprise) {
     return res.status(404).json({ error: 'Surprise gift not found' });
   }
 
-  // Increment view count
+  // Admins can view without the token (for moderation)
+  const authHeader = req.headers['authorization'];
+  const jwtToken = authHeader && authHeader.split(' ')[1];
+  if (jwtToken) {
+    try {
+      const decoded: any = jwt.verify(jwtToken, JWT_SECRET);
+      if (decoded.role === 'admin' || decoded.id === surprise.userId) {
+        surprise.viewsCount += 1;
+        saveData();
+        return res.json({ surprise });
+      }
+    } catch (_) {}
+  }
+
+  // Everyone else must present the correct viewToken
+  if (!viewToken || viewToken !== surprise.viewToken) {
+    return res.status(403).json({ error: 'Invalid or missing access token. Use the full share link.' });
+  }
+
   surprise.viewsCount += 1;
   saveData();
-
   return res.json({ surprise });
 });
 
-// Create Surprise
+// Create Surprise — only real (Google-authenticated) accounts may create websites.
 app.post('/api/surprises', authenticateToken, (req: any, res: any) => {
+  // Block anonymous guest accounts (googleId starts with "device_")
+  const creator = users.find(u => u.id === req.user.id);
+  if (!creator || creator.googleId.startsWith('device_')) {
+    return res.status(401).json({
+      error: 'Please sign in with Google to create a surprise website.',
+      requireLogin: true,
+    });
+  }
+
   const { creatorName, partnerName, title, coverImage, memoryImages, welcomeMessage, loveLetter, finalMessage, reasons, certificate, music } = req.body;
 
   if (!creatorName || !partnerName || !title || !memoryImages || memoryImages.length === 0) {
@@ -622,12 +678,13 @@ app.post('/api/surprises', authenticateToken, (req: any, res: any) => {
   const cleanTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'gift';
   const uniqueId = `${cleanTitle}-${Date.now().toString(36).slice(-4)}`;
 
-  // Default cover image logic: if cover image is missing, auto use the first uploaded image with blur overlay
+  // Default cover image logic: if cover image is missing, auto use the first uploaded image
   const effectiveCover = coverImage || (memoryImages[0] ? memoryImages[0].url : '');
 
   const newSurprise: SurpriseData = {
     id: uniqueId,
     userId: req.user.id,
+    viewToken: generateViewToken(),
     creatorName,
     partnerName,
     title,

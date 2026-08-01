@@ -55,11 +55,13 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onNavigate }) => {
     }
   };
 
-  const handleCopyLink = (id: string, e: React.MouseEvent) => {
+  const getShareUrl = (s: SurpriseData) =>
+    `${window.location.origin}/s/${s.id}?token=${encodeURIComponent((s as any).viewToken || '')}`;
+
+  const handleCopyLink = (s: SurpriseData, e: React.MouseEvent) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/s/${id}`;
-    navigator.clipboard.writeText(url);
-    setCopiedId(id);
+    navigator.clipboard.writeText(getShareUrl(s));
+    setCopiedId(s.id);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -205,7 +207,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onNavigate }) => {
                   <div className="pt-3 border-t border-[#1A1A1A]/10 flex items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-widest text-[#1A1A1A]">
                     <div className="flex gap-3">
                       <button
-                        onClick={e => handleCopyLink(s.id, e)}
+                        onClick={e => handleCopyLink(s, e)}
                         className="hover:text-rose-600 flex items-center gap-1 transition-colors"
                         title="Copy Link"
                       >
