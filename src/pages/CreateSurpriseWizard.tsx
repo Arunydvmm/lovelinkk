@@ -223,14 +223,7 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
     setPresentedBy(creatorName || tmpl.creatorName);
     setCoverImage(tmpl.coverImage);
     setSelectedMusic({ type: 'preset', name: tmpl.musicTrackName, url: tmpl.musicTrackUrl });
-    setMemories(
-      tmpl.memoryImages.map((m, idx) => ({
-        id: `tmpl_${idx}_${Date.now()}`,
-        url: m.url,
-        caption: m.caption,
-        date: m.date,
-      }))
-    );
+    // Do NOT auto-populate memories — user uploads their own photos
   };
 
   const handleAddSampleMemory = (sample: (typeof SAMPLE_MEMORY_IMAGES)[0]) => {
@@ -633,6 +626,16 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
               </div>
             )}
 
+            {/* hidden input lives outside the drag zone so browser click events never get swallowed */}
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleCoverFileInputChange}
+              disabled={uploadingCover}
+            />
+
             <div
               onDrop={handleCoverDrop}
               onDragOver={e => { e.preventDefault(); e.stopPropagation(); setCoverDragOver(true); }}
@@ -690,15 +693,6 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
                 </div>
               ) : (
                 <div className="space-y-3 py-6">
-                  {/* hidden input — triggered by button click via ref */}
-                  <input
-                    ref={coverInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleCoverFileInputChange}
-                    disabled={uploadingCover}
-                  />
                   <ImageIcon size={40} className="mx-auto text-rose-400" />
                   <p className="text-sm text-slate-300 font-medium">
                     {coverDragOver ? '✦ Drop to upload!' : 'Click the button or drag & drop'}
@@ -839,6 +833,17 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
               </div>
             )}
 
+            {/* hidden input lives outside the drag zone so browser click events never get swallowed */}
+            <input
+              ref={memoriesInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileUpload}
+              disabled={uploadingMemories}
+            />
+
             <div
               onDrop={handleMemoriesDrop}
               onDragOver={e => { e.preventDefault(); e.stopPropagation(); setMemoriesDragOver(true); }}
@@ -880,16 +885,6 @@ export const CreateSurpriseWizard: React.FC<Props> = ({
                 </div>
               ) : (
                 <>
-                  {/* hidden input — triggered by button click via ref */}
-                  <input
-                    ref={memoriesInputRef}
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                    disabled={uploadingMemories}
-                  />
                   <Upload size={36} className="mx-auto text-rose-400" />
                   <div>
                     <p className="text-sm font-bold text-white">
