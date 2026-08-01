@@ -4,9 +4,11 @@ import {
   Trash2, Eye, ToggleLeft, ToggleRight, RefreshCw, ChevronRight,
   LayoutTemplate, Plus, Clock, Chrome, UserCircle, Check, X,
   Upload, FileJson, Globe, EyeOff, Star, StarOff, Pencil, Save,
+  AlertTriangle, CheckCircle,
 } from 'lucide-react';
 import { AdminStats, SurpriseData, User, SiteSettings, StoryTemplate, FullTemplate } from '../types';
 import { api } from '../api';
+import { validateTemplateJson, ValidationResult } from '../templateEngine/validator';
 
 interface Props {
   user: User;
@@ -62,11 +64,12 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
   /* full-template panel state */
   const [ftTab, setFtTab] = useState<'list' | 'new'>('list');
   const [ftForm, setFtForm] = useState<Partial<FullTemplate>>({ ...EMPTY_FULL });
-  const [ftJsonText, setFtJsonText]     = useState('');
-  const [ftJsonError, setFtJsonError]   = useState('');
-  const [ftInputMode, setFtInputMode]   = useState<'form' | 'json' | 'paste'>('form');
-  const [savingFt, setSavingFt]         = useState(false);
-  const [editingFtId, setEditingFtId]   = useState<string | null>(null);
+  const [ftJsonText, setFtJsonText]         = useState('');
+  const [ftJsonError, setFtJsonError]       = useState('');
+  const [ftValidation, setFtValidation]     = useState<ValidationResult | null>(null);
+  const [ftInputMode, setFtInputMode]       = useState<'form' | 'json' | 'paste'>('form');
+  const [savingFt, setSavingFt]             = useState(false);
+  const [editingFtId, setEditingFtId]       = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { loadAdminData(); }, []);
@@ -168,8 +171,17 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
     try {
       const parsed = JSON.parse(ftJsonText);
       setFtJsonError('');
-      // accept either a raw template object or a wrapped { template: … }
+      // accept either a raw TemplateSpec or a wrapped { template: … }
       const obj = parsed.metadata ? parsed : parsed.template ?? parsed;
+
+      // ── Run validation ──
+      const validation = validateTemplateJson(obj);
+      setFtValidation(validation);
+      if (!validation.valid) {
+        setFtJsonError('JSON failed validation — see errors below.');
+        return null;
+      }
+
       return {
         name:        obj.metadata?.name  ?? obj.name  ?? '',
         badge:       obj.metadata?.badge ?? obj.badge ?? '❤️',
@@ -185,8 +197,23 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
         featured: false,
       };
     } catch {
-      setFtJsonError('Invalid JSON — please check and try again.');
+      setFtJsonError('Invalid JSON syntax — please check and try again.');
+      setFtValidation(null);
       return null;
+    }
+  };
+
+  /** Validate live as user types/pastes, without blocking */
+  const handleJsonTextChange = (text: string) => {
+    setFtJsonText(text);
+    setFtJsonError('');
+    if (!text.trim()) { setFtValidation(null); return; }
+    try {
+      const parsed = JSON.parse(text);
+      const obj = parsed.template ?? parsed;
+      setFtValidation(validateTemplateJson(obj));
+    } catch {
+      setFtValidation(null);
     }
   };
 
@@ -197,8 +224,7 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
     const reader = new FileReader();
     reader.onload = ev => {
       const text = ev.target?.result as string;
-      setFtJsonText(text);
-      setFtJsonError('');
+      handleJsonTextChange(text);
       setFtInputMode('json');
     };
     reader.readAsText(file);
@@ -549,12 +575,42 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
                     <textarea
                       rows={10}
                       value={ftJsonText}
-                      onChange={e => { setFtJsonText(e.target.value); setFtJsonError(''); }}
-                      placeholder={'{\n  "metadata": { "name": "My Template", … },\n  "pages": [ … ]\n}'}
+                      onChange={e => handleJsonTextChange(e.target.value)}
+                      placeholder={'{\n  "version": "1",\n  "name": "My Template",\n  "theme": { … },\n  "sections": [ … ]\n}'}
                       className="w-full px-3 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-200 font-mono focus:outline-none focus:border-rose-500 resize-none"
                       spellCheck={false}
                     />
                     {ftJsonError && <p className="text-xs text-rose-400 font-semibold">{ftJsonError}</p>}
+                  </div>
+                )}
+
+                {/* ── Live Validation Result Panel ── */}
+                {ftValidation && (ftInputMode === 'json' || ftInputMode === 'paste') && (
+                  <div className={`rounded-2xl border p-4 space-y-2 text-xs ${
+                    ftValidation.valid
+                      ? 'bg-emerald-950/40 border-emerald-500/40'
+                      : 'bg-rose-950/40 border-rose-500/40'
+                  }`}>
+                    <div className="flex items-center gap-2 font-bold">
+                      {ftValidation.valid
+                        ? <><CheckCircle size={14} className="text-emerald-400" /><span className="text-emerald-300">JSON is valid — ready to publish</span></>
+                        : <><AlertTriangle size={14} className="text-rose-400" /><span className="text-rose-300">JSON has {ftValidation.errors.length} error{ftValidation.errors.length > 1 ? 's' : ''}</span></>
+                      }
+                    </div>
+                    {ftValidation.errors.length > 0 && (
+                      <ul className="space-y-1 pl-4">
+                        {ftValidation.errors.map((e, i) => (
+                          <li key={i} className="text-rose-300 list-disc">⚠ {e}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {ftValidation.warnings.length > 0 && (
+                      <ul className="space-y-0.5 pl-4 pt-1 border-t border-slate-700">
+                        {ftValidation.warnings.map((w, i) => (
+                          <li key={i} className="text-amber-400 list-disc">ℹ {w}</li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 )}
 

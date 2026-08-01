@@ -75,6 +75,20 @@ interface SurpriseData {
   viewsCount: number;
   createdAt: string;
   updatedAt: string;
+  // ── Extended fields (template engine) ──
+  templateId?: string;
+  nickname?: string;
+  relationship?: string;
+  occasion?: string;
+  specialDate?: string;
+  yearsTogether?: number;
+  profilePicture?: string;
+  headline?: string;
+  letterSignature?: string;
+  timeline?: Record<string, unknown>[];
+  quotes?: Record<string, unknown>[];
+  enabledModules?: string[];
+  countdownDate?: string;
 }
 
 interface User {
@@ -730,7 +744,13 @@ app.post('/api/surprises', authenticateToken, (req: any, res: any) => {
     });
   }
 
-  const { creatorName, partnerName, title, coverImage, memoryImages, welcomeMessage, loveLetter, finalMessage, reasons, certificate, music } = req.body;
+  const {
+    creatorName, partnerName, title, coverImage, memoryImages,
+    welcomeMessage, loveLetter, finalMessage, reasons, certificate, music,
+    // extended fields
+    templateId, nickname, relationship, occasion, specialDate, yearsTogether,
+    profilePicture, headline, letterSignature, timeline, quotes, enabledModules, countdownDate,
+  } = req.body;
 
   if (!creatorName || !partnerName || !title || !memoryImages || memoryImages.length === 0) {
     return res.status(400).json({ error: 'Missing required surprise fields (creator name, partner name, title, memory images)' });
@@ -740,7 +760,6 @@ app.post('/api/surprises', authenticateToken, (req: any, res: any) => {
   const cleanTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'gift';
   const uniqueId = `${cleanTitle}-${Date.now().toString(36).slice(-4)}`;
 
-  // Default cover image logic: if cover image is missing, auto use the first uploaded image
   const effectiveCover = coverImage || (memoryImages[0] ? memoryImages[0].url : '');
 
   const newSurprise: SurpriseData = {
@@ -751,11 +770,11 @@ app.post('/api/surprises', authenticateToken, (req: any, res: any) => {
     partnerName,
     title,
     coverImage: effectiveCover,
-    memoryImages: memoryImages.slice(0, 20), // 5-20 images limit
+    memoryImages: memoryImages.slice(0, 20),
     welcomeMessage: welcomeMessage || `Welcome to our sweet story, ${partnerName}! ❤️`,
     loveLetter: loveLetter || `My Dearest ${partnerName},\n\nYou mean the absolute world to me.`,
     finalMessage: finalMessage || `Thank you for being mine forever!`,
-    reasons: (reasons || []).slice(0, 5),
+    reasons: (reasons || []).slice(0, 15),
     certificate: certificate || {
       recipientName: partnerName,
       presentedBy: creatorName,
@@ -770,6 +789,20 @@ app.post('/api/surprises', authenticateToken, (req: any, res: any) => {
     viewsCount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    // extended
+    templateId: templateId || undefined,
+    nickname: nickname || undefined,
+    relationship: relationship || undefined,
+    occasion: occasion || undefined,
+    specialDate: specialDate || undefined,
+    yearsTogether: yearsTogether ? Number(yearsTogether) : undefined,
+    profilePicture: profilePicture || undefined,
+    headline: headline || undefined,
+    letterSignature: letterSignature || undefined,
+    timeline: Array.isArray(timeline) ? timeline : undefined,
+    quotes: Array.isArray(quotes) ? quotes : undefined,
+    enabledModules: Array.isArray(enabledModules) ? enabledModules : undefined,
+    countdownDate: countdownDate || undefined,
   };
 
   surprises.unshift(newSurprise);
@@ -788,20 +821,38 @@ app.put('/api/surprises/:id', authenticateToken, (req: any, res: any) => {
     return res.status(403).json({ error: 'You do not have permission to edit this surprise' });
   }
 
-  const { creatorName, partnerName, title, coverImage, memoryImages, welcomeMessage, loveLetter, finalMessage, reasons, certificate, music } = req.body;
+  const {
+    creatorName, partnerName, title, coverImage, memoryImages,
+    welcomeMessage, loveLetter, finalMessage, reasons, certificate, music,
+    templateId, nickname, relationship, occasion, specialDate, yearsTogether,
+    profilePicture, headline, letterSignature, timeline, quotes, enabledModules, countdownDate,
+  } = req.body;
 
   if (creatorName) surprise.creatorName = creatorName;
   if (partnerName) surprise.partnerName = partnerName;
   if (title) surprise.title = title;
   if (memoryImages) surprise.memoryImages = memoryImages;
-  
   surprise.coverImage = coverImage || (surprise.memoryImages[0] ? surprise.memoryImages[0].url : surprise.coverImage);
   if (welcomeMessage !== undefined) surprise.welcomeMessage = welcomeMessage;
   if (loveLetter !== undefined) surprise.loveLetter = loveLetter;
   if (finalMessage !== undefined) surprise.finalMessage = finalMessage;
-  if (reasons) surprise.reasons = reasons.slice(0, 5);
+  if (reasons) surprise.reasons = reasons.slice(0, 15);
   if (certificate) surprise.certificate = certificate;
   if (music) surprise.music = music;
+  // extended fields
+  if (templateId !== undefined) surprise.templateId = templateId;
+  if (nickname !== undefined) surprise.nickname = nickname;
+  if (relationship !== undefined) surprise.relationship = relationship;
+  if (occasion !== undefined) surprise.occasion = occasion;
+  if (specialDate !== undefined) surprise.specialDate = specialDate;
+  if (yearsTogether !== undefined) surprise.yearsTogether = yearsTogether ? Number(yearsTogether) : undefined;
+  if (profilePicture !== undefined) surprise.profilePicture = profilePicture;
+  if (headline !== undefined) surprise.headline = headline;
+  if (letterSignature !== undefined) surprise.letterSignature = letterSignature;
+  if (timeline !== undefined) surprise.timeline = Array.isArray(timeline) ? timeline : undefined;
+  if (quotes !== undefined) surprise.quotes = Array.isArray(quotes) ? quotes : undefined;
+  if (enabledModules !== undefined) surprise.enabledModules = Array.isArray(enabledModules) ? enabledModules : undefined;
+  if (countdownDate !== undefined) surprise.countdownDate = countdownDate;
 
   surprise.updatedAt = new Date().toISOString();
   saveData();
@@ -951,6 +1002,13 @@ app.delete('/api/admin/templates/:id', authenticateToken, (req: any, res: any) =
 app.get('/api/templates', (_req, res) => {
   const published = fullTemplates.filter(t => t.published !== false);
   return res.json({ templates: published });
+});
+
+// ── PUBLIC single template by ID (used by SurpriseViewPage to resolve templateJson) ──
+app.get('/api/templates/:id', (req, res) => {
+  const tpl = fullTemplates.find(t => t.id === req.params.id && t.published !== false);
+  if (!tpl) return res.status(404).json({ error: 'Template not found' });
+  return res.json({ template: tpl });
 });
 
 // ── ADMIN full-template CRUD ──
