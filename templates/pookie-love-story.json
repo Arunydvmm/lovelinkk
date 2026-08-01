@@ -1,0 +1,1310 @@
+{
+  "metadata": {
+    "id": "pookie-love-story-v1",
+    "name": "Pookie Love Story",
+    "version": "1.0.0",
+    "description": "A cute, funny and emotional love story with a checkered red background, floating hearts, interactive YES/NO buttons, photo gallery, love letter, memory timeline, music player, certificate and a grand finale with fireworks. Perfect for anniversaries, Valentine's Day, and spontaneous surprises.",
+    "badge": "🐱 Pookie",
+    "badgeBg": "bg-red-100 text-red-700",
+    "category": "romantic",
+    "subcategory": "cute",
+    "tags": ["cute", "funny", "romantic", "emotional", "pookie", "hello-kitty", "valentine", "anniversary"],
+    "previewImage": "{{coverImage}}",
+    "author": "LoveLink",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "totalPages": 10,
+    "mood": ["cute", "romantic", "funny", "emotional"],
+    "style": ["minimal", "premium", "interactive", "mobile-first"]
+  },
+
+  "theme": {
+    "background": {
+      "type": "checkerboard",
+      "colorA": "#D62839",
+      "colorB": "#C01F30",
+      "tileSize": 40,
+      "opacity": 1,
+      "overlay": {
+        "type": "radial-gradient",
+        "colors": ["rgba(214,40,57,0.0)", "rgba(0,0,0,0.18)"],
+        "position": "ellipse at center"
+      }
+    },
+    "colors": {
+      "primary": "#D62839",
+      "primaryLight": "#FF6B7A",
+      "primaryDark": "#A01E2C",
+      "secondary": "#FFB6C1",
+      "secondaryDark": "#FF8C9A",
+      "accent": "#FFFFFF",
+      "accentSoft": "rgba(255,255,255,0.92)",
+      "surface": "rgba(255,255,255,0.95)",
+      "surfaceBlur": "rgba(255,255,255,0.88)",
+      "surfaceDark": "rgba(214,40,57,0.10)",
+      "border": "#FFB6C1",
+      "borderStrong": "#FF8C9A",
+      "borderGold": "#F5C842",
+      "text": "#1a0005",
+      "textOnPrimary": "#FFFFFF",
+      "textMuted": "#8B1A2A",
+      "textSubtle": "rgba(139,26,42,0.65)",
+      "gold": "#F5C842",
+      "goldDark": "#C8A000",
+      "goldLight": "#FDE68A",
+      "buttonYes": "linear-gradient(135deg, #D62839, #FF6B7A)",
+      "buttonNo": "rgba(255,255,255,0.20)",
+      "buttonNoText": "#FFFFFF",
+      "buttonNoBorder": "rgba(255,255,255,0.55)",
+      "buttonTryAgain": "linear-gradient(135deg, #D62839, #FF6B7A)",
+      "buttonContinue": "linear-gradient(135deg, #D62839, #FF8C9A)",
+      "buttonReplay": "linear-gradient(135deg, #D62839, #FF6B7A)",
+      "progressBar": "linear-gradient(90deg, #D62839, #FFB6C1)",
+      "progressTrack": "rgba(255,255,255,0.25)",
+      "confettiColors": ["#D62839", "#FFB6C1", "#F5C842", "#FFFFFF", "#FF6B7A", "#FDE68A"]
+    },
+    "typography": {
+      "fontFamily": {
+        "display": "'Nunito', 'Varela Round', 'Poppins', system-ui, sans-serif",
+        "sans": "'Nunito', 'Varela Round', system-ui, sans-serif",
+        "serif": "Georgia, 'Times New Roman', serif",
+        "handwritten": "'Caveat', 'Patrick Hand', cursive"
+      },
+      "sizes": {
+        "hero":        "2.5rem",
+        "heading":     "1.875rem",
+        "subheading":  "1.375rem",
+        "body":        "1rem",
+        "small":       "0.875rem",
+        "caption":     "0.75rem",
+        "badge":       "0.6875rem"
+      },
+      "weights": {
+        "normal":    400,
+        "medium":    500,
+        "semibold":  600,
+        "bold":      700,
+        "extrabold": 800,
+        "black":     900
+      },
+      "letterSpacing": {
+        "tight":  "-0.02em",
+        "normal": "0em",
+        "wide":   "0.04em",
+        "widest": "0.12em"
+      }
+    },
+    "spacing": {
+      "pagePadding":  "1.25rem",
+      "cardPadding":  "1.75rem",
+      "sectionGap":   "1.5rem",
+      "elementGap":   "1rem",
+      "buttonHeight": "3rem"
+    },
+    "radius": {
+      "card":   "1.5rem",
+      "pill":   "9999px",
+      "button": "9999px",
+      "image":  "1rem",
+      "badge":  "9999px"
+    },
+    "shadows": {
+      "card":      "0 20px 60px rgba(214,40,57,0.18), 0 4px 20px rgba(0,0,0,0.10)",
+      "cardWhite": "0 20px 60px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06)",
+      "button":    "0 8px 28px rgba(214,40,57,0.40)",
+      "buttonGold":"0 8px 28px rgba(245,200,66,0.40)",
+      "image":     "0 8px 32px rgba(0,0,0,0.20)",
+      "imageGold": "0 0 0 3px #F5C842, 0 8px 32px rgba(0,0,0,0.22)",
+      "glow":      "0 0 40px rgba(214,40,57,0.35)"
+    },
+    "glassmorphism": {
+      "background":    "rgba(255,255,255,0.18)",
+      "backgroundCard":"rgba(255,255,255,0.95)",
+      "backdropBlur":  "16px",
+      "border":        "1px solid rgba(255,255,255,0.40)"
+    },
+    "decorations": {
+      "floatingHearts": {
+        "enabled": true,
+        "count": 12,
+        "colors": ["rgba(255,182,193,0.55)", "rgba(255,255,255,0.40)", "rgba(214,40,57,0.35)"],
+        "sizes": [16, 20, 24, 16, 20, 28, 16, 20, 24, 16, 20, 24]
+      },
+      "floatingFlowers": {
+        "enabled": true,
+        "count": 6,
+        "emoji": "🌸",
+        "sizes": [18, 22, 18, 22, 18, 22],
+        "opacity": 0.55
+      },
+      "handDrawnLines": {
+        "enabled": true,
+        "color": "rgba(255,255,255,0.18)",
+        "strokeWidth": 2
+      },
+      "sparkles": {
+        "enabled": true,
+        "color": "#F5C842",
+        "count": 8
+      },
+      "mascot": {
+        "type": "cute-cat",
+        "style": "red-bow",
+        "size": { "default": "8rem", "hero": "11rem" },
+        "animation": "bounce"
+      }
+    },
+    "stickers": ["❤️", "🌸", "💕", "✨", "🎀", "🌺", "💖", "🎊", "🏆", "🎵"],
+    "emojis": {
+      "love":        "❤️",
+      "flower":      "🌸",
+      "sparkle":     "✨",
+      "gift":        "🎁",
+      "music":       "🎵",
+      "certificate": "🏆",
+      "confetti":    "🎊",
+      "bow":         "🎀",
+      "star":        "⭐",
+      "fireworks":   "🎆"
+    }
+  },
+
+  "globalAnimation": {
+    "pageTransition": {
+      "type": "fade",
+      "duration": 0.5,
+      "easing": "easeOut"
+    },
+    "heartFloat": {
+      "yFrom": "108vh",
+      "yTo": "-8vh",
+      "rotate": 25,
+      "duration": { "min": 12, "max": 22 },
+      "delay":   { "step": 0.7 },
+      "loop": true
+    },
+    "flowerBloom": {
+      "initialScale": 0,
+      "finalScale": 1,
+      "duration": 0.6,
+      "easing": "spring",
+      "staggerDelay": 0.12
+    },
+    "fadeIn": {
+      "initialOpacity": 0,
+      "finalOpacity": 1,
+      "duration": 0.55,
+      "easing": "easeOut"
+    },
+    "zoom": {
+      "initialScale": 0.88,
+      "finalScale": 1,
+      "duration": 0.5,
+      "easing": "easeOut"
+    },
+    "slideUp": {
+      "initialY": 36,
+      "finalY": 0,
+      "initialOpacity": 0,
+      "duration": 0.55,
+      "easing": "easeOut"
+    },
+    "bounce": {
+      "type": "bounce",
+      "duration": 0.6,
+      "times": [0, 0.4, 0.7, 1],
+      "values": [1, 1.15, 0.95, 1]
+    },
+    "pulse": {
+      "scale": [1, 1.08, 1],
+      "duration": 1.4,
+      "loop": true,
+      "easing": "easeInOut"
+    },
+    "typing": {
+      "type": "typing",
+      "charDelay": 0.022,
+      "cursorBlink": true,
+      "cursorChar": "|"
+    },
+    "confettiBurst": {
+      "particleCount": 120,
+      "spread": 120,
+      "origin": { "y": 0.55 },
+      "colors": ["#D62839", "#FFB6C1", "#F5C842", "#FFFFFF", "#FF6B7A"]
+    },
+    "confettiGold": {
+      "particleCount": 90,
+      "spread": 100,
+      "origin": { "y": 0.5 },
+      "colors": ["#F5C842", "#FDE68A", "#FFFFFF", "#D62839", "#FFB6C1"],
+      "shapes": ["circle", "star"]
+    },
+    "fireworks": {
+      "type": "fireworks",
+      "bursts": 5,
+      "interval": 600,
+      "colors": ["#D62839", "#F5C842", "#FFB6C1", "#FFFFFF", "#FF6B7A"]
+    },
+    "sparkle": {
+      "color": "#F5C842",
+      "size": 14,
+      "count": 8,
+      "duration": 1.2,
+      "loop": true
+    },
+    "buttonEntrance": {
+      "initialY": 18,
+      "initialOpacity": 0,
+      "duration": 0.45,
+      "staggerDelay": 0.12
+    }
+  },
+
+  "soundEffects": {
+    "buttonClick":    { "id": "sfx-click",    "type": "tone", "frequency": 880, "duration": 0.08 },
+    "heartPop":       { "id": "sfx-heart",    "type": "tone", "frequency": 660, "duration": 0.12 },
+    "confettiBurst":  { "id": "sfx-confetti", "type": "tone", "frequency": 1046, "duration": 0.18 },
+    "no":             { "id": "sfx-no",       "type": "tone", "frequency": 220, "duration": 0.20 }
+  },
+
+  "music": {
+    "variable": "{{music}}",
+    "autoPlayOnPage": "page-6",
+    "loop": true,
+    "defaultVolume": 0.55,
+    "showFloatingPill": true,
+    "pill": {
+      "position": "top-right",
+      "offset": "1rem",
+      "glassmorphism": true,
+      "background": "rgba(214,40,57,0.85)",
+      "textColor": "#FFFFFF"
+    },
+    "controls": ["play", "pause", "mute", "unmute"]
+  },
+
+  "variables": [
+    { "key": "yourName",     "label": "Your Name",          "type": "text",       "required": true,  "placeholder": "Your name" },
+    { "key": "partnerName",  "label": "Partner Name",        "type": "text",       "required": true,  "placeholder": "Pookie" },
+    { "key": "coverImage",   "label": "Cover / Hero Photo",  "type": "image",      "required": false, "fallback": "{{photo1}}" },
+    { "key": "photo1",       "label": "Photo 1",             "type": "image",      "required": true  },
+    { "key": "photo2",       "label": "Photo 2",             "type": "image",      "required": true  },
+    { "key": "photo3",       "label": "Photo 3",             "type": "image",      "required": true  },
+    { "key": "photo4",       "label": "Photo 4",             "type": "image",      "required": false },
+    { "key": "photo5",       "label": "Photo 5",             "type": "image",      "required": false },
+    { "key": "photo6",       "label": "Photo 6",             "type": "image",      "required": false },
+    { "key": "loveLetter",   "label": "Love Letter",         "type": "textarea",   "required": true,  "placeholder": "Write your heart out…" },
+    { "key": "memory1",      "label": "Memory 1",            "type": "text",       "required": true,  "placeholder": "The day we first met…" },
+    { "key": "memory2",      "label": "Memory 2",            "type": "text",       "required": true,  "placeholder": "Our first date at…" },
+    { "key": "memory3",      "label": "Memory 3",            "type": "text",       "required": false, "placeholder": "When we…" },
+    { "key": "memory4",      "label": "Memory 4",            "type": "text",       "required": false, "placeholder": "The moment I knew…" },
+    { "key": "music",        "label": "Background Music",    "type": "music",      "required": false },
+    { "key": "specialDate",  "label": "Special Date",        "type": "date",       "required": false, "fallback": "today", "format": "MMMM D, YYYY" }
+  ],
+
+  "pages": [
+
+    {
+      "id": "page-1",
+      "pageNumber": 1,
+      "key": "cover",
+      "label": "Cover",
+      "component": "Cover",
+      "showInProgress": false,
+      "backgroundOverride": {
+        "type": "checkerboard",
+        "colorA": "#D62839",
+        "colorB": "#C01F30",
+        "tileSize": 40
+      },
+      "transition": {
+        "enter": { "type": "fade",  "duration": 0.55 },
+        "exit":  { "type": "zoom",  "exitScale": 0.92, "duration": 0.4 }
+      },
+      "layout": {
+        "alignment": "center",
+        "direction": "column",
+        "justify": "center",
+        "gap": "1.5rem",
+        "paddingY": "3.5rem"
+      },
+      "content": {
+        "mascot": {
+          "type": "cute-cat",
+          "style": "red-bow",
+          "size": "11rem",
+          "animation": "bounce",
+          "position": "top-center"
+        },
+        "decorations": [
+          { "type": "floatingHearts",  "enabled": true },
+          { "type": "floatingFlowers", "enabled": true },
+          { "type": "handDrawnLines",  "enabled": true },
+          { "type": "sparkles",        "enabled": true }
+        ],
+        "heading": {
+          "text": "Baby, I made something for you ❤️",
+          "fontFamily": "display",
+          "fontSize": "heading",
+          "fontWeight": "black",
+          "color": "#FFFFFF",
+          "textShadow": "0 2px 12px rgba(0,0,0,0.30)",
+          "textAlign": "center",
+          "animation": { "type": "slideUp", "delay": 0.2 }
+        },
+        "subtitle": {
+          "text": "Do you wanna see it? 🥺",
+          "fontFamily": "display",
+          "fontSize": "subheading",
+          "fontWeight": "bold",
+          "color": "rgba(255,255,255,0.90)",
+          "textAlign": "center",
+          "animation": { "type": "fadeIn", "delay": 0.45 }
+        },
+        "coverImage": {
+          "src": "{{coverImage}}",
+          "fallback": "{{photo1}}",
+          "shape": "circle",
+          "size": { "default": "8rem", "sm": "10rem" },
+          "border": "4px solid rgba(255,255,255,0.80)",
+          "shadow": "0 8px 40px rgba(0,0,0,0.25)",
+          "animation": { "type": "zoom", "delay": 0.1 },
+          "showIfSet": true
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-yes",
+          "type": "button",
+          "variant": "custom",
+          "label": "YES 💖",
+          "background": "linear-gradient(135deg, #FFFFFF, #FFE4E8)",
+          "textColor": "#D62839",
+          "borderRadius": "9999px",
+          "fontWeight": "black",
+          "fontSize": "subheading",
+          "paddingX": "3rem",
+          "paddingY": "0.9rem",
+          "shadow": "0 8px 28px rgba(255,255,255,0.35)",
+          "animation": {
+            "entrance": { "type": "slideUp", "delay": 0.65 },
+            "idle":     { "type": "pulse" },
+            "hover":    "scale:1.06",
+            "tap":      "scale:0.94"
+          },
+          "soundEffect": "heartPop",
+          "onClick": [
+            { "action": "navigate", "target": "page-2" }
+          ]
+        },
+        {
+          "id": "btn-no",
+          "type": "button",
+          "variant": "custom",
+          "label": "no... 🙈",
+          "background": "rgba(255,255,255,0.15)",
+          "textColor": "rgba(255,255,255,0.70)",
+          "border": "1px solid rgba(255,255,255,0.30)",
+          "borderRadius": "9999px",
+          "fontWeight": "bold",
+          "fontSize": "small",
+          "paddingX": "1.5rem",
+          "paddingY": "0.6rem",
+          "animation": {
+            "entrance": { "type": "fadeIn", "delay": 0.85 },
+            "hover":    "scale:0.94",
+            "tap":      "scale:0.90"
+          },
+          "soundEffect": "no",
+          "onClick": [
+            { "action": "navigate", "target": "page-no" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "page-no",
+      "pageNumber": "1b",
+      "key": "funny-no",
+      "label": "Why No?!",
+      "component": "SinglePhoto",
+      "showInProgress": false,
+      "backgroundOverride": {
+        "type": "checkerboard",
+        "colorA": "#D62839",
+        "colorB": "#C01F30",
+        "tileSize": 40
+      },
+      "transition": {
+        "enter": { "type": "zoom",  "initialScale": 0.85, "duration": 0.45 },
+        "exit":  { "type": "fade",  "duration": 0.35 }
+      },
+      "layout": {
+        "alignment": "center",
+        "direction": "column",
+        "justify": "center",
+        "gap": "1.5rem"
+      },
+      "content": {
+        "heading": {
+          "text": "Why did u click NO!? 😤",
+          "fontFamily": "display",
+          "fontSize": "heading",
+          "fontWeight": "black",
+          "color": "#FFFFFF",
+          "textAlign": "center",
+          "animation": { "type": "bounce", "delay": 0.1 }
+        },
+        "mascot": {
+          "type": "cute-cat",
+          "style": "angry-red-bow",
+          "size": "13rem",
+          "animation": "bounce",
+          "position": "center"
+        },
+        "caption": {
+          "text": "There's no wrong answer, {{partnerName}}... just this one 😂",
+          "fontFamily": "display",
+          "fontSize": "body",
+          "fontWeight": "bold",
+          "color": "rgba(255,255,255,0.85)",
+          "textAlign": "center"
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-try-again",
+          "type": "button",
+          "variant": "custom",
+          "label": "TRY AGAIN 💕",
+          "background": "linear-gradient(135deg, #FFFFFF, #FFE4E8)",
+          "textColor": "#D62839",
+          "borderRadius": "9999px",
+          "fontWeight": "black",
+          "fontSize": "body",
+          "paddingX": "2.5rem",
+          "paddingY": "0.85rem",
+          "shadow": "0 8px 28px rgba(255,255,255,0.30)",
+          "animation": {
+            "entrance": { "type": "slideUp", "delay": 0.4 },
+            "idle":     { "type": "pulse" },
+            "hover":    "scale:1.05",
+            "tap":      "scale:0.95"
+          },
+          "soundEffect": "heartPop",
+          "onClick": [
+            { "action": "navigate", "target": "page-1" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "page-2",
+      "pageNumber": 2,
+      "key": "romantic-message",
+      "label": "For You",
+      "component": "Cover",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "fade",   "duration": 0.55 },
+        "exit":  { "type": "slideUp","duration": 0.4  }
+      },
+      "layout": {
+        "alignment": "center",
+        "direction": "column",
+        "justify": "center",
+        "gap": "1.5rem",
+        "paddingY": "4rem"
+      },
+      "content": {
+        "decorations": [
+          { "type": "floatingHearts",  "enabled": true, "density": "high" },
+          { "type": "floatingFlowers", "enabled": true },
+          { "type": "sparkles",        "enabled": true }
+        ],
+        "badge": {
+          "text": "🌸 Just for you",
+          "style": "pill",
+          "background": "rgba(255,255,255,0.22)",
+          "border": "rgba(255,255,255,0.45)",
+          "textColor": "#FFFFFF",
+          "fontFamily": "display",
+          "animation": { "type": "fadeIn", "delay": 0.1 }
+        },
+        "heading": {
+          "text": "Hey {{partnerName}} 💕",
+          "fontFamily": "display",
+          "fontSize": "hero",
+          "fontWeight": "black",
+          "color": "#FFFFFF",
+          "textAlign": "center",
+          "textShadow": "0 2px 14px rgba(0,0,0,0.25)",
+          "animation": { "type": "slideUp", "delay": 0.2 }
+        },
+        "subtitle": {
+          "text": "I made this because you mean everything to me and I wanted the whole world to know it 🌍❤️",
+          "fontFamily": "display",
+          "fontSize": "body",
+          "fontWeight": "semibold",
+          "color": "rgba(255,255,255,0.92)",
+          "textAlign": "center",
+          "animation": { "type": "fadeIn", "delay": 0.5 }
+        },
+        "heartRow": {
+          "enabled": true,
+          "hearts": ["❤️", "🧡", "💛", "💚", "💙", "💜", "🩷"],
+          "animation": { "type": "bounce", "staggerDelay": 0.08 }
+        },
+        "flowerRow": {
+          "enabled": true,
+          "items": ["🌸", "🌺", "🌹", "🌸", "🌺"],
+          "animation": { "type": "flowerBloom", "staggerDelay": 0.1 }
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-p2-continue",
+          "type": "button",
+          "variant": "custom",
+          "label": "Show me! 📸",
+          "background": "linear-gradient(135deg, #FFFFFF, #FFE4E8)",
+          "textColor": "#D62839",
+          "borderRadius": "9999px",
+          "fontWeight": "black",
+          "fontSize": "body",
+          "paddingX": "2.5rem",
+          "paddingY": "0.85rem",
+          "shadow": "0 8px 28px rgba(255,255,255,0.30)",
+          "animation": {
+            "entrance": { "type": "slideUp", "delay": 0.75 },
+            "hover": "scale:1.05",
+            "tap":   "scale:0.95"
+          },
+          "soundEffect": "heartPop",
+          "onClick": [{ "action": "navigate", "target": "page-3" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-3",
+      "pageNumber": 3,
+      "key": "gallery",
+      "label": "Photos",
+      "component": "Gallery",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "slideUp", "duration": 0.5 },
+        "exit":  { "type": "fade",    "duration": 0.4 }
+      },
+      "layout": {
+        "alignment": "center",
+        "direction": "column",
+        "gap": "1.25rem",
+        "paddingY": "2rem"
+      },
+      "content": {
+        "badge": {
+          "text": "📸 Our Moments",
+          "style": "pill",
+          "background": "rgba(255,255,255,0.20)",
+          "border": "rgba(255,255,255,0.40)",
+          "textColor": "#FFFFFF"
+        },
+        "heading": {
+          "text": "Us 🥰",
+          "fontFamily": "display",
+          "fontSize": "heading",
+          "fontWeight": "black",
+          "color": "#FFFFFF",
+          "textAlign": "center",
+          "textShadow": "0 2px 10px rgba(0,0,0,0.20)"
+        },
+        "hint": {
+          "text": "Tap any photo to enlarge 🌸",
+          "fontFamily": "display",
+          "fontSize": "caption",
+          "color": "rgba(255,255,255,0.70)"
+        },
+        "grid": {
+          "data": [
+            { "src": "{{photo1}}", "alt": "Memory 1" },
+            { "src": "{{photo2}}", "alt": "Memory 2" },
+            { "src": "{{photo3}}", "alt": "Memory 3" },
+            { "src": "{{photo4}}", "alt": "Memory 4", "optional": true },
+            { "src": "{{photo5}}", "alt": "Memory 5", "optional": true },
+            { "src": "{{photo6}}", "alt": "Memory 6", "optional": true }
+          ],
+          "columns": 2,
+          "gap": "0.75rem",
+          "itemShape": "rounded",
+          "itemRadius": "1rem",
+          "itemAspectRatio": "1/1",
+          "itemBorder": "3px solid #F5C842",
+          "itemShadow": "0 0 0 3px #F5C842, 0 8px 28px rgba(0,0,0,0.22)",
+          "hoverScale": 1.04,
+          "tapScale": 0.96,
+          "itemAnimation": {
+            "type": "zoom",
+            "staggerDelay": 0.08
+          },
+          "lightbox": {
+            "enabled": true,
+            "background": "rgba(0,0,0,0.93)",
+            "blur": "12px",
+            "animation": "fade",
+            "border": "3px solid #F5C842",
+            "borderRadius": "1rem"
+          }
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-p3-continue",
+          "type": "button",
+          "variant": "custom",
+          "label": "Read my letter 💌",
+          "background": "linear-gradient(135deg, #FFFFFF, #FFE4E8)",
+          "textColor": "#D62839",
+          "borderRadius": "9999px",
+          "fontWeight": "black",
+          "fontSize": "body",
+          "paddingX": "2rem",
+          "paddingY": "0.85rem",
+          "shadow": "0 8px 28px rgba(255,255,255,0.28)",
+          "animation": { "hover": "scale:1.05", "tap": "scale:0.95" },
+          "soundEffect": "buttonClick",
+          "onClick": [{ "action": "navigate", "target": "page-4" }]
+        },
+        {
+          "id": "btn-p3-back",
+          "type": "link",
+          "label": "← Back",
+          "textColor": "rgba(255,255,255,0.60)",
+          "fontSize": "small",
+          "onClick": [{ "action": "navigate", "target": "page-2" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-4",
+      "pageNumber": 4,
+      "key": "love-letter",
+      "label": "Letter",
+      "component": "LoveLetter",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "slideUp", "duration": 0.55 },
+        "exit":  { "type": "fade",    "duration": 0.4  }
+      },
+      "layout": {
+        "alignment": "center",
+        "direction": "column",
+        "gap": "1.25rem",
+        "paddingY": "2rem"
+      },
+      "content": {
+        "badge": {
+          "text": "💌 A letter for you",
+          "style": "pill",
+          "background": "rgba(255,255,255,0.20)",
+          "border": "rgba(255,255,255,0.40)",
+          "textColor": "#FFFFFF"
+        },
+        "heading": {
+          "text": "Dear {{partnerName}},",
+          "fontFamily": "handwritten",
+          "fontSize": "subheading",
+          "fontWeight": "bold",
+          "color": "#D62839",
+          "textAlign": "left"
+        },
+        "card": {
+          "background": "rgba(255,255,255,0.97)",
+          "border": "2px solid #FFB6C1",
+          "borderRadius": "1.5rem",
+          "shadow": "0 20px 60px rgba(0,0,0,0.14)",
+          "padding": "1.75rem",
+          "decorations": [
+            { "type": "sticker", "emoji": "🌸", "position": "top-right",    "size": "1.75rem", "rotation": 15  },
+            { "type": "sticker", "emoji": "🌺", "position": "bottom-left",  "size": "1.5rem",  "rotation": -10 },
+            { "type": "sticker", "emoji": "💕", "position": "top-left",     "size": "1.25rem", "rotation": -8  },
+            { "type": "sticker", "emoji": "✨", "position": "bottom-right", "size": "1.25rem", "rotation": 12  }
+          ],
+          "body": {
+            "text": "{{loveLetter}}",
+            "fallback": "You are the most wonderful person in my life and I never want you to forget that. Every single day with you is a gift. I love you so much, Pookie! ❤️",
+            "fontFamily": "handwritten",
+            "fontSize": "body",
+            "fontWeight": "normal",
+            "color": "#1a0005",
+            "lineHeight": 1.85,
+            "whiteSpace": "pre-line",
+            "animation": { "type": "typing", "charDelay": 0.022 }
+          },
+          "signature": {
+            "caption": "Forever yours,",
+            "name": "{{yourName}} 💕",
+            "fontFamily": "handwritten",
+            "fontSize": "subheading",
+            "fontWeight": "bold",
+            "color": "#D62839",
+            "textAlign": "right",
+            "divider": true,
+            "dividerColor": "#FFB6C1"
+          }
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-p4-continue",
+          "type": "button",
+          "variant": "custom",
+          "label": "Our memories 🕰️",
+          "background": "linear-gradient(135deg, #D62839, #FF6B7A)",
+          "textColor": "#FFFFFF",
+          "borderRadius": "9999px",
+          "fontWeight": "black",
+          "fontSize": "body",
+          "paddingX": "2rem",
+          "paddingY": "0.85rem",
+          "shadow": "0 8px 28px rgba(214,40,57,0.40)",
+          "animation": { "hover": "scale:1.05", "tap": "scale:0.95" },
+          "soundEffect": "buttonClick",
+          "onClick": [{ "action": "navigate", "target": "page-5" }]
+        },
+        {
+          "id": "btn-p4-back",
+          "type": "link",
+          "label": "← Back",
+          "textColor": "rgba(255,255,255,0.60)",
+          "fontSize": "small",
+          "onClick": [{ "action": "navigate", "target": "page-3" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-5",
+      "pageNumber": 5,
+      "key": "timeline",
+      "label": "Memories",
+      "component": "Timeline",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "slideUp", "duration": 0.5 },
+        "exit":  { "type": "fade",    "duration": 0.4 }
+      },
+      "layout": {
+        "alignment": "start",
+        "direction": "column",
+        "gap": "1.25rem",
+        "paddingY": "2rem"
+      },
+      "content": {
+        "badge": {
+          "text": "🕰️ Our Story",
+          "style": "pill",
+          "background": "rgba(255,255,255,0.20)",
+          "border": "rgba(255,255,255,0.40)",
+          "textColor": "#FFFFFF"
+        },
+        "heading": {
+          "text": "How it all started ❤️",
+          "fontFamily": "display",
+          "fontSize": "heading",
+          "fontWeight": "black",
+          "color": "#FFFFFF",
+          "textAlign": "center",
+          "textShadow": "0 2px 10px rgba(0,0,0,0.20)"
+        },
+        "timeline": {
+          "data": [
+            { "emoji": "✨", "text": "{{memory1}}", "label": "Chapter 1" },
+            { "emoji": "💕", "text": "{{memory2}}", "label": "Chapter 2" },
+            { "emoji": "🌸", "text": "{{memory3}}", "label": "Chapter 3", "optional": true },
+            { "emoji": "❤️", "text": "{{memory4}}", "label": "Chapter 4", "optional": true }
+          ],
+          "lineColor": "rgba(255,255,255,0.40)",
+          "lineWidth": "2px",
+          "dotStyle": {
+            "background": "linear-gradient(135deg, #FFFFFF, #FFB6C1)",
+            "size": "2.5rem",
+            "border": "2px solid rgba(255,255,255,0.60)",
+            "shadow": "0 4px 12px rgba(0,0,0,0.15)"
+          },
+          "card": {
+            "background": "rgba(255,255,255,0.95)",
+            "border": "1.5px solid rgba(255,182,193,0.60)",
+            "borderRadius": "1rem",
+            "shadow": "0 8px 24px rgba(0,0,0,0.10)",
+            "padding": "1rem 1.25rem",
+            "labelColor": "#D62839",
+            "labelFontFamily": "display",
+            "labelFontWeight": "extrabold",
+            "textColor": "#1a0005",
+            "textFontFamily": "display",
+            "textFontWeight": "medium"
+          },
+          "itemAnimation": {
+            "type": "slideUp",
+            "staggerDelay": 0.12
+          }
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-p5-continue",
+          "type": "button",
+          "variant": "custom",
+          "label": "Our song 🎵",
+          "background": "linear-gradient(135deg, #FFFFFF, #FFE4E8)",
+          "textColor": "#D62839",
+          "borderRadius": "9999px",
+          "fontWeight": "black",
+          "fontSize": "body",
+          "paddingX": "2rem",
+          "paddingY": "0.85rem",
+          "shadow": "0 8px 28px rgba(255,255,255,0.28)",
+          "animation": { "hover": "scale:1.05", "tap": "scale:0.95" },
+          "soundEffect": "buttonClick",
+          "onClick": [{ "action": "navigate", "target": "page-6" }]
+        },
+        {
+          "id": "btn-p5-back",
+          "type": "link",
+          "label": "← Back",
+          "textColor": "rgba(255,255,255,0.60)",
+          "fontSize": "small",
+          "onClick": [{ "action": "navigate", "target": "page-4" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-6",
+      "pageNumber": 6,
+      "key": "music",
+      "label": "Our Song",
+      "component": "Music",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "zoom",  "initialScale": 0.90, "duration": 0.55 },
+        "exit":  { "type": "fade",  "duration": 0.4 }
+      },
+      "layout": {
+        "alignment": "center",
+        "direction": "column",
+        "gap": "1.5rem",
+        "paddingY": "2.5rem"
+      },
+      "onEnter": [
+        { "action": "playMusic" }
+      ],
+      "content": {
+        "badge": {
+          "text": "🎵 Our Song",
+          "style": "pill",
+          "background": "rgba(255,255,255,0.20)",
+          "border": "rgba(255,255,255,0.40)",
+          "textColor": "#FFFFFF"
+        },
+        "heading": {
+          "text": "This song is us 🎶",
+          "fontFamily": "display",
+          "fontSize": "heading",
+          "fontWeight": "black",
+          "color": "#FFFFFF",
+          "textAlign": "center",
+          "textShadow": "0 2px 10px rgba(0,0,0,0.20)"
+        },
+        "mascot": {
+          "type": "cute-cat",
+          "style": "dancing-red-bow",
+          "size": "7rem",
+          "animation": "bounce",
+          "position": "above-player"
+        },
+        "player": {
+          "track": "{{music}}",
+          "autoPlay": true,
+          "loop": true,
+          "card": {
+            "background": "rgba(255,255,255,0.96)",
+            "border": "2px solid #FFB6C1",
+            "borderRadius": "1.5rem",
+            "shadow": "0 20px 60px rgba(0,0,0,0.14)",
+            "padding": "1.5rem"
+          },
+          "albumArt": {
+            "src": "{{coverImage}}",
+            "fallback": "{{photo1}}",
+            "size": "5rem",
+            "borderRadius": "0.75rem",
+            "border": "2px solid #FFB6C1",
+            "animation": { "type": "pulse", "whenPlaying": true }
+          },
+          "playButton": {
+            "shape": "circle",
+            "size": "3.75rem",
+            "background": "linear-gradient(135deg, #D62839, #FF6B7A)",
+            "shadow": "0 8px 24px rgba(214,40,57,0.40)",
+            "iconColor": "#FFFFFF",
+            "iconSize": 24,
+            "hover": "scale:1.08",
+            "tap": "scale:0.92"
+          },
+          "trackName": {
+            "variable": "{{music.name}}",
+            "fallback": "Our Favorite Song",
+            "fontFamily": "display",
+            "fontWeight": "bold",
+            "color": "#1a0005",
+            "truncate": true
+          },
+          "status": {
+            "playing": "♫ Playing for you…",
+            "paused": "Tap to play 🎵"
+          },
+          "waveform": {
+            "enabled": true,
+            "bars": 24,
+            "barColor": "#D62839",
+            "barColorMuted": "#FFB6C1",
+            "barWidth": "0.3rem",
+            "barRadius": "9999px",
+            "maxHeight": 40,
+            "gap": "0.15rem",
+            "animation": {
+              "type": "pulse",
+              "durationMin": 0.5,
+              "durationStep": 0.12,
+              "delayStep": 0.04
+            }
+          },
+          "muteButton": { "enabled": true }
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-p6-continue",
+          "type": "button",
+          "variant": "custom",
+          "label": "My gift to you 🏆",
+          "background": "linear-gradient(135deg, #FFFFFF, #FFE4E8)",
+          "textColor": "#D62839",
+          "borderRadius": "9999px",
+          "fontWeight": "black",
+          "fontSize": "body",
+          "paddingX": "2rem",
+          "paddingY": "0.85rem",
+          "shadow": "0 8px 28px rgba(255,255,255,0.28)",
+          "animation": { "hover": "scale:1.05", "tap": "scale:0.95" },
+          "soundEffect": "buttonClick",
+          "onClick": [{ "action": "navigate", "target": "page-7" }]
+        },
+        {
+          "id": "btn-p6-back",
+          "type": "link",
+          "label": "← Back",
+          "textColor": "rgba(255,255,255,0.60)",
+          "fontSize": "small",
+          "onClick": [{ "action": "navigate", "target": "page-5" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-7",
+      "pageNumber": 7,
+      "key": "certificate",
+      "label": "Certificate",
+      "component": "Certificate",
+      "showInProgress": true,
+      "transition": {
+        "enter": { "type": "zoom",  "initialScale": 0.88, "duration": 0.6 },
+        "exit":  { "type": "fade",  "duration": 0.4 }
+      },
+      "onEnter": [
+        { "action": "confetti", "preset": "confettiGold" }
+      ],
+      "layout": {
+        "alignment": "center",
+        "direction": "column",
+        "gap": "1.25rem",
+        "paddingY": "2rem"
+      },
+      "content": {
+        "badge": {
+          "text": "🏆 Official Certificate",
+          "style": "pill",
+          "background": "rgba(245,200,66,0.25)",
+          "border": "rgba(245,200,66,0.60)",
+          "textColor": "#FDE68A",
+          "fontWeight": "extrabold"
+        },
+        "heading": {
+          "text": "You've been certified! 🎊",
+          "fontFamily": "display",
+          "fontSize": "heading",
+          "fontWeight": "black",
+          "color": "#FFFFFF",
+          "textAlign": "center",
+          "textShadow": "0 2px 10px rgba(0,0,0,0.20)"
+        },
+        "certificate": {
+          "outerBackground": "#FFFDF9",
+          "outerBorder": "3px solid #F5C842",
+          "outerRadius": "1.5rem",
+          "outerShadow": "0 20px 60px rgba(0,0,0,0.18), 0 0 0 6px rgba(245,200,66,0.20)",
+          "innerBorder": "1.5px solid rgba(245,200,66,0.40)",
+          "innerRadius": "1rem",
+          "innerBackground": "linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,244,220,0.4))",
+          "padding": "1.75rem",
+          "header": {
+            "eyebrow": "This Official Certificate",
+            "eyebrowFont": "display",
+            "eyebrowColor": "#C8A000",
+            "eyebrowSize": "caption",
+            "eyebrowWeight": "extrabold",
+            "eyebrowSpacing": "widest",
+            "title": "Certificate of Love",
+            "titleFont": "display",
+            "titleColor": "#D62839",
+            "titleSize": "subheading",
+            "titleWeight": "black",
+            "dividerColor": "#F5C842"
+          },
+          "seal": {
+            "enabled": true,
+            "gradient": ["#F5C842", "#C8A000", "#FDE68A"],
+            "size": "4rem",
+            "icon": "star",
+            "iconColor": "#FFFFFF",
+            "animation": { "type": "sparkle" }
+          },
+          "body": {
+            "certifies": "Hereby proudly certifies that",
+            "certifiesColor": "#8B6914",
+            "recipientName": "{{partnerName}}",
+            "recipientFont": "display",
+            "recipientSize": "subheading",
+            "recipientWeight": "black",
+            "recipientColor": "#D62839",
+            "bodyText": "is officially and forever recognized as the most wonderful",
+            "bodyColor": "#5C3D0E",
+            "award": "Best Girlfriend ❤️",
+            "awardFont": "display",
+            "awardSize": "heading",
+            "awardWeight": "black",
+            "awardColor": "#D62839",
+            "awardGlow": true,
+            "tagline": "For infinite love, endless smiles, and being absolutely everything."
+          },
+          "footer": {
+            "date": "{{specialDate}}",
+            "dateLabel": "Date",
+            "presentedBy": "{{yourName}}",
+            "presentedByLabel": "With love from",
+            "fontFamily": "display",
+            "color": "#8B6914",
+            "dividerColor": "#F5C842"
+          },
+          "decorations": [
+            { "type": "sticker", "emoji": "🌸", "position": "top-left",     "size": "1.5rem" },
+            { "type": "sticker", "emoji": "💕", "position": "top-right",    "size": "1.5rem" },
+            { "type": "sticker", "emoji": "✨", "position": "bottom-left",  "size": "1.25rem" },
+            { "type": "sticker", "emoji": "🎀", "position": "bottom-right", "size": "1.25rem" }
+          ],
+          "allowDownload": true,
+          "downloadLabel": "Save Certificate 💾"
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-p7-continue",
+          "type": "button",
+          "variant": "custom",
+          "label": "The finale 🎆",
+          "background": "linear-gradient(135deg, #F5C842, #C8A000)",
+          "textColor": "#FFFFFF",
+          "borderRadius": "9999px",
+          "fontWeight": "black",
+          "fontSize": "body",
+          "paddingX": "2rem",
+          "paddingY": "0.85rem",
+          "shadow": "0 8px 28px rgba(245,200,66,0.40)",
+          "animation": { "idle": "pulse", "hover": "scale:1.05", "tap": "scale:0.95" },
+          "soundEffect": "confettiBurst",
+          "onClick": [{ "action": "navigate", "target": "page-8" }]
+        },
+        {
+          "id": "btn-p7-back",
+          "type": "link",
+          "label": "← Back",
+          "textColor": "rgba(255,255,255,0.60)",
+          "fontSize": "small",
+          "onClick": [{ "action": "navigate", "target": "page-6" }]
+        }
+      ]
+    },
+
+    {
+      "id": "page-8",
+      "pageNumber": 8,
+      "key": "final",
+      "label": "Final",
+      "component": "Ending",
+      "showInProgress": false,
+      "transition": {
+        "enter": { "type": "zoom", "initialScale": 0.88, "duration": 0.65 },
+        "exit":  { "type": "fade", "duration": 0.4 }
+      },
+      "onEnter": [
+        { "action": "confetti",  "preset": "confettiBurst" },
+        { "action": "fireworks", "preset": "fireworks" }
+      ],
+      "layout": {
+        "alignment": "center",
+        "direction": "column",
+        "justify": "center",
+        "gap": "1.75rem",
+        "paddingY": "3.5rem"
+      },
+      "content": {
+        "decorations": [
+          { "type": "floatingHearts",  "enabled": true, "density": "high" },
+          { "type": "floatingFlowers", "enabled": true },
+          { "type": "sparkles",        "enabled": true, "density": "high" }
+        ],
+        "mascot": {
+          "type": "cute-cat",
+          "style": "happy-red-bow",
+          "size": "10rem",
+          "animation": "bounce",
+          "position": "top-center"
+        },
+        "badge": {
+          "text": "🎊 The End",
+          "style": "pill",
+          "background": "rgba(245,200,66,0.22)",
+          "border": "rgba(245,200,66,0.55)",
+          "textColor": "#FDE68A",
+          "fontWeight": "extrabold",
+          "animation": { "type": "fadeIn", "delay": 0.1 }
+        },
+        "heading": {
+          "text": "I Love You Forever ❤️",
+          "fontFamily": "display",
+          "fontSize": "hero",
+          "fontWeight": "black",
+          "color": "#FFFFFF",
+          "textAlign": "center",
+          "textShadow": "0 2px 20px rgba(0,0,0,0.25)",
+          "animation": { "type": "slideUp", "delay": 0.3 }
+        },
+        "subtitle": {
+          "text": "Thank you for being my {{partnerName}} 🥹\nYou make every day worth living.",
+          "fontFamily": "display",
+          "fontSize": "body",
+          "fontWeight": "semibold",
+          "color": "rgba(255,255,255,0.90)",
+          "textAlign": "center",
+          "whiteSpace": "pre-line",
+          "animation": { "type": "fadeIn", "delay": 0.65 }
+        },
+        "heartRow": {
+          "enabled": true,
+          "hearts": ["❤️", "💕", "💖", "💗", "💓"],
+          "animation": { "type": "bounce", "staggerDelay": 0.1, "loop": true }
+        }
+      },
+      "actions": [
+        {
+          "id": "btn-p8-replay",
+          "type": "button",
+          "variant": "custom",
+          "label": "Replay Our Story 🔁",
+          "background": "linear-gradient(135deg, #FFFFFF, #FFE4E8)",
+          "textColor": "#D62839",
+          "borderRadius": "9999px",
+          "fontWeight": "black",
+          "fontSize": "body",
+          "paddingX": "2rem",
+          "paddingY": "0.85rem",
+          "shadow": "0 8px 28px rgba(255,255,255,0.30)",
+          "animation": {
+            "entrance": { "type": "slideUp", "delay": 0.9 },
+            "hover": "scale:1.05",
+            "tap":   "scale:0.95"
+          },
+          "soundEffect": "heartPop",
+          "onClick": [
+            { "action": "navigate",   "target": "page-1" },
+            { "action": "resetState" }
+          ]
+        },
+        {
+          "id": "btn-p8-share",
+          "type": "button",
+          "variant": "custom",
+          "label": "Share 📤",
+          "background": "rgba(255,255,255,0.18)",
+          "border": "1px solid rgba(255,255,255,0.40)",
+          "textColor": "#FFFFFF",
+          "borderRadius": "9999px",
+          "fontWeight": "bold",
+          "fontSize": "small",
+          "paddingX": "1.75rem",
+          "paddingY": "0.7rem",
+          "animation": {
+            "entrance": { "type": "fadeIn", "delay": 1.1 },
+            "hover": "scale:1.04",
+            "tap":   "scale:0.96"
+          },
+          "soundEffect": "buttonClick",
+          "onClick": [
+            { "action": "share", "title": "I made something for you ❤️", "url": "{{shareUrl}}" }
+          ]
+        }
+      ]
+    }
+
+  ],
+
+  "navigation": [
+    { "id": "nav-yes",          "from": "page-1",   "trigger": "btn-yes",          "to": "page-2",   "condition": null },
+    { "id": "nav-no",           "from": "page-1",   "trigger": "btn-no",           "to": "page-no",  "condition": null },
+    { "id": "nav-try-again",    "from": "page-no",  "trigger": "btn-try-again",    "to": "page-1",   "condition": null },
+    { "id": "nav-p2-next",      "from": "page-2",   "trigger": "btn-p2-continue",  "to": "page-3",   "condition": null },
+    { "id": "nav-p3-next",      "from": "page-3",   "trigger": "btn-p3-continue",  "to": "page-4",   "condition": null },
+    { "id": "nav-p3-back",      "from": "page-3",   "trigger": "btn-p3-back",      "to": "page-2",   "condition": null },
+    { "id": "nav-p4-next",      "from": "page-4",   "trigger": "btn-p4-continue",  "to": "page-5",   "condition": null },
+    { "id": "nav-p4-back",      "from": "page-4",   "trigger": "btn-p4-back",      "to": "page-3",   "condition": null },
+    { "id": "nav-p5-next",      "from": "page-5",   "trigger": "btn-p5-continue",  "to": "page-6",   "condition": null },
+    { "id": "nav-p5-back",      "from": "page-5",   "trigger": "btn-p5-back",      "to": "page-4",   "condition": null },
+    { "id": "nav-p6-next",      "from": "page-6",   "trigger": "btn-p6-continue",  "to": "page-7",   "condition": null },
+    { "id": "nav-p6-back",      "from": "page-6",   "trigger": "btn-p6-back",      "to": "page-5",   "condition": null },
+    { "id": "nav-p7-next",      "from": "page-7",   "trigger": "btn-p7-continue",  "to": "page-8",   "condition": null },
+    { "id": "nav-p7-back",      "from": "page-7",   "trigger": "btn-p7-back",      "to": "page-6",   "condition": null },
+    { "id": "nav-p8-replay",    "from": "page-8",   "trigger": "btn-p8-replay",    "to": "page-1",   "condition": null }
+  ],
+
+  "ending": {
+    "pageId": "page-8",
+    "onReplay": { "action": "navigate", "target": "page-1", "resetState": true },
+    "onShare": {
+      "action": "share",
+      "native": true,
+      "fallback": "copyToClipboard",
+      "payload": {
+        "title": "Baby, I made something for you ❤️",
+        "text": "{{yourName}} made a love surprise for {{partnerName}} 💕",
+        "url": "{{shareUrl}}"
+      }
+    }
+  }
+}
