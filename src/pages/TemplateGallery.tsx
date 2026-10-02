@@ -9,7 +9,7 @@ import { api } from '../api';
 import { FullTemplate } from '../types';
 
 interface Props {
-  onNavigate: (tab: string, id?: string) => void;
+  onNavigate: (tab: string, id?: string, token?: string, opts?: { template?: string }) => void;
 }
 
 const CATEGORIES = ['All', 'Romantic', 'Cute', 'Birthday', 'Anniversary', 'Long Distance', 'Proposal'];
@@ -232,7 +232,7 @@ export const TemplateGallery: React.FC<Props> = ({ onNavigate }) => {
                 {/* CTA */}
                 <div className="px-5 pb-5">
                   <button
-                    onClick={() => onNavigate('create')}
+                    onClick={() => onNavigate('create', undefined, undefined, { template: tpl.id })}
                     className="w-full py-2.5 rounded-full bg-gradient-to-r from-rose-600 to-pink-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-rose-400/30 hover:shadow-lg hover:shadow-rose-400/40 hover:scale-[1.02] active:scale-95 transition-all"
                   >
                     Use This Template <ArrowRight size={14} />
@@ -289,7 +289,11 @@ export const TemplateGallery: React.FC<Props> = ({ onNavigate }) => {
                   </p>
                 )}
                 <button
-                  onClick={() => { setPreviewTemplate(null); onNavigate('create'); }}
+                  onClick={() => {
+                    const id = previewTemplate.id;
+                    setPreviewTemplate(null);
+                    onNavigate('create', undefined, undefined, { template: id });
+                  }}
                   className="w-full py-3 rounded-full bg-gradient-to-r from-rose-600 to-pink-500 text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md mt-2"
                 >
                   <Heart size={15} fill="currentColor" /> Use This Template
