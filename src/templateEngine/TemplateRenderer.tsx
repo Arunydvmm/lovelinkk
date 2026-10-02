@@ -143,6 +143,9 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Remember which way the visitor is travelling so self-skipping sections
+  // (quotes / countdown with no data) keep going the same way instead of bouncing back.
+  const [direction, setDirection] = useState<'forward' | 'back'>('forward');
 
   // ── Audio init ──
   useEffect(() => {
@@ -171,10 +174,11 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
     if (currentIdx === 0 && audioRef.current && !isPlayingMusic) {
       audioRef.current.play().then(() => setIsPlayingMusic(true)).catch(() => {});
     }
+    setDirection('forward');
     setCurrentIdx(i => Math.min(i + 1, sections.length - 1));
   };
-  const goBack  = () => setCurrentIdx(i => Math.max(i - 1, 0));
-  const replay  = () => { setCurrentIdx(0); };
+  const goBack  = () => { setDirection('back'); setCurrentIdx(i => Math.max(i - 1, 0)); };
+  const replay  = () => { setDirection('forward'); setCurrentIdx(0); };
 
   const progressPct = sections.length > 1
     ? Math.round((currentIdx / (sections.length - 1)) * 100)
@@ -192,6 +196,7 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
     onNext: goNext,
     onBack: goBack,
     onReplay: replay,
+    direction,
     isFirst: currentIdx === 0,
     isLast: currentIdx === sections.length - 1,
     audioRef,
