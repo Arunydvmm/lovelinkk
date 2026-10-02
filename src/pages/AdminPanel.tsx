@@ -6,21 +6,24 @@ import {
   Upload, FileJson, Globe, EyeOff, Star, StarOff, Pencil, Save,
   AlertTriangle, CheckCircle,
 } from 'lucide-react';
-import { AdminStats, SurpriseData, User, SiteSettings, StoryTemplate, FullTemplate } from '../types';
+import { AdminStats, SurpriseData, User, SiteSettings, FullTemplate } from '../types';
 import { api } from '../api';
 import { validateTemplateJson, ValidationResult } from '../templateEngine/validator';
+import { useUploadToasts, UploadToasts } from '../components/UploadToast';
+import {
+  validateImageFile,
+  compressImage,
+  readFileAsDataUrl,
+  withUploadRetry,
+  runWithUploadLimit,
+  IMAGE_INPUT_ACCEPT,
+} from '../utils/mediaUpload';
 
 interface Props {
   user: User;
   onLogout: () => void;
   onNavigate: (path: string) => void;
 }
-
-const EMPTY_TEMPLATE: Omit<StoryTemplate, 'id' | 'createdAt'> = {
-  title: '', badge: '', description: '',
-  sampleReasons: ['', '', '', '', ''],
-  coverImageUrl: '', musicTrack: { name: '', url: '' },
-};
 
 const EMPTY_FULL: Partial<FullTemplate> = {
   name: '', badge: '❤️', description: '', category: 'romantic',
@@ -48,18 +51,12 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
   const [stats, setStats]               = useState<AdminStats | null>(null);
   const [usersList, setUsersList]       = useState<User[]>([]);
   const [surprisesList, setSurprisesList] = useState<SurpriseData[]>([]);
-  const [templatesList, setTemplatesList] = useState<StoryTemplate[]>([]);
   const [fullTemplates, setFullTemplates] = useState<FullTemplate[]>([]);
   const [siteSettings, setSiteSettings] = useState<SiteSettings>({
     siteName: 'LoveLink', logoUrl: '', maintenanceMode: false, defaultMusicTracks: [],
   });
   const [loading, setLoading]           = useState(true);
   const [savingSettings, setSavingSettings] = useState(false);
-
-  /* legacy template form */
-  const [showTemplateForm, setShowTemplateForm] = useState(false);
-  const [newTemplate, setNewTemplate]   = useState({ ...EMPTY_TEMPLATE });
-  const [savingTemplate, setSavingTemplate] = useState(false);
 
   /* full-template panel state */
   const [ftTab, setFtTab] = useState<'list' | 'new'>('list');
@@ -71,25 +68,25 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
   const [savingFt, setSavingFt]             = useState(false);
   const [editingFtId, setEditingFtId]       = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingPreview, setUploadingPreview] = useState(false);
+  const { notifyUploaded, notifyError } = useUploadToasts();
 
   useEffect(() => { loadAdminData(); }, []);
 
   const loadAdminData = async () => {
     setLoading(true);
     try {
-      const [sData, uData, surpData, setRes, tplData, ftData] = await Promise.all([
+      const [sData, uData, surpData, setRes, ftData] = await Promise.all([
         api.getAdminStats(),
         api.getAdminUsers(),
         api.getAdminSurprises(),
         api.getPublicSettings(),
-        api.getAdminTemplates(),
         api.getAdminFullTemplates(),
       ]);
       setStats(sData);
       setUsersList(uData);
       setSurprisesList(surpData);
       setSiteSettings(setRes);
-      setTemplatesList(tplData);
       setFullTemplates(ftData);
     } catch (err: any) {
       console.error(err);
@@ -138,41 +135,13 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
     finally { setSavingSettings(false); }
   };
 
-  const handleCreateTemplate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTemplate.title.trim() || !newTemplate.badge.trim() || !newTemplate.description.trim()) return;
-    setSavingTemplate(true);
-    try {
-      const tpl = await api.createAdminTemplate({
-        ...newTemplate, sampleReasons: newTemplate.sampleReasons.filter(r => r.trim()),
-      });
-      setTemplatesList([...templatesList, tpl]);
-      setNewTemplate({ ...EMPTY_TEMPLATE });
-      setShowTemplateForm(false);
-    } catch (e: any) { alert(e.message); }
-    finally { setSavingTemplate(false); }
-  };
-
-  const handleDeleteTemplate = async (id: string) => {
-    if (!confirm('Delete this template?')) return;
-    try {
-      await api.deleteAdminTemplate(id);
-      setTemplatesList(templatesList.filter(t => t.id !== id));
-    } catch (e: any) { alert(e.message); }
-  };
-
-  const updateReason = (idx: number, val: string) => {
-    const r = [...newTemplate.sampleReasons]; r[idx] = val;
-    setNewTemplate({ ...newTemplate, sampleReasons: r });
-  };
-
   /* ── full-template handlers ─────────────────── */
   const parseFtJson = (): Partial<FullTemplate> | null => {
     try {
       const parsed = JSON.parse(ftJsonText);
       setFtJsonError('');
       // accept either a raw TemplateSpec or a wrapped { template: … }
-      const obj = parsed.metadata ? parsed : parsed.template ?? parsed;
+      const obj = parsed.template ?? parsed;
 
       // ── Run validation ──
       const validation = validateTemplateJson(obj);
@@ -191,7 +160,7 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
         mood:        obj.metadata?.mood  ?? obj.mood  ?? [],
         style:       obj.metadata?.style ?? obj.style ?? [],
         previewImage:obj.metadata?.previewImage ?? obj.previewImage ?? '',
-        totalPages:  obj.metadata?.totalPages   ?? obj.totalPages,
+        totalPages:  obj.metadata?.totalPages   ?? obj.totalPages ?? (Array.isArray(obj.sections) ? obj.sections.length : undefined),
         templateJson: obj,
         published: true,
         featured: false,
@@ -254,6 +223,7 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
           description: ftForm.description?.trim() || parsed.description,
           category:    ftForm.category            || parsed.category,
           previewImage:ftForm.previewImage        || parsed.previewImage,
+          coverImageUrl: ftForm.coverImageUrl     || undefined,
           published:   ftForm.published ?? true,
           featured:    ftForm.featured  ?? false,
         };
@@ -300,10 +270,36 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
     } catch (e: any) { alert(e.message); }
   };
 
+  /** Upload a gallery preview image to Cloudinary and put its URL into the form. */
+  const handlePreviewImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const invalid = validateImageFile(file);
+    if (invalid) { notifyError('Preview image not added', invalid); return; }
+
+    setUploadingPreview(true);
+    try {
+      const url = await runWithUploadLimit(async () => {
+        const compressed = await compressImage(file);
+        const dataUrl = await readFileAsDataUrl(compressed);
+        const res = await withUploadRetry(() => api.uploadMedia(dataUrl, 'image'));
+        return res.url;
+      });
+      setFtForm(f => ({ ...f, previewImage: url }));
+      notifyUploaded('photo');
+    } catch (err: any) {
+      notifyError('Preview image upload failed', err?.message || 'Please try again.');
+    } finally {
+      setUploadingPreview(false);
+    }
+  };
+
   const startEditFt = (tpl: FullTemplate) => {
     setFtForm({
       name: tpl.name, badge: tpl.badge, description: tpl.description,
       category: tpl.category, previewImage: tpl.previewImage,
+      coverImageUrl: tpl.coverImageUrl,
       published: tpl.published, featured: tpl.featured, totalPages: tpl.totalPages,
     });
     setFtJsonText(tpl.templateJson ? JSON.stringify(tpl.templateJson, null, 2) : '');
@@ -315,6 +311,7 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
   /* ─────────────────────────────────────────────── RENDER */
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans flex flex-col md:flex-row">
+      <UploadToasts />
 
       {/* ── Sidebar ── */}
       <aside className="w-full md:w-64 bg-slate-900 border-r border-slate-800 p-6 flex flex-col justify-between space-y-6">
@@ -642,10 +639,25 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">Preview Image URL</label>
-                      <input type="url" placeholder="https://…"
-                        value={ftForm.previewImage ?? ''} onChange={e => setFtForm({ ...ftForm, previewImage: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-rose-500" />
+                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">Preview Image</label>
+                      <div className="flex items-center gap-2">
+                        {ftForm.previewImage ? (
+                          <img src={ftForm.previewImage} alt="Preview"
+                            className="w-12 h-12 rounded-lg object-cover border border-slate-700 shrink-0" />
+                        ) : (
+                          <div className="w-12 h-12 rounded-lg border border-dashed border-slate-600 flex items-center justify-center text-slate-600 shrink-0">
+                            <Upload size={14} />
+                          </div>
+                        )}
+                        <input type="url" placeholder="Paste a URL, or upload →"
+                          value={ftForm.previewImage ?? ''} onChange={e => setFtForm({ ...ftForm, previewImage: e.target.value })}
+                          className="min-w-0 flex-1 px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-rose-500" />
+                        <label className={`px-3 py-2 rounded-xl bg-slate-700 text-white text-xs font-bold shrink-0 ${uploadingPreview ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-600'}`}>
+                          {uploadingPreview ? 'Uploading…' : 'Upload'}
+                          <input type="file" accept={IMAGE_INPUT_ACCEPT} className="hidden"
+                            disabled={uploadingPreview} onChange={handlePreviewImageUpload} />
+                        </label>
+                      </div>
                     </div>
                   </div>
 
@@ -743,97 +755,6 @@ export const AdminPanel: React.FC<Props> = ({ user, onLogout, onNavigate }) => {
                 ))}
               </div>
             )}
-
-            {/* ── Legacy simple templates (collapsible) ── */}
-            <details className="group">
-              <summary className="cursor-pointer text-xs font-bold text-slate-500 hover:text-slate-300 select-none flex items-center gap-2 py-2">
-                <ChevronRight size={13} className="group-open:rotate-90 transition-transform" />
-                Legacy Wizard Templates ({templatesList.length})
-              </summary>
-              <div className="mt-4 space-y-4">
-                <div className="flex justify-end">
-                  <button onClick={() => setShowTemplateForm(v => !v)}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl">
-                    {showTemplateForm ? <><X size={13} /> Cancel</> : <><Plus size={13} /> Add Legacy</>}
-                  </button>
-                </div>
-                {showTemplateForm && (
-                  <form onSubmit={handleCreateTemplate} className="bg-slate-900 border border-slate-700 rounded-2xl p-5 space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-300 mb-1">Title *</label>
-                        <input required type="text" placeholder="Anniversary Surprise" value={newTemplate.title}
-                          onChange={e => setNewTemplate({ ...newTemplate, title: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-rose-500" />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-300 mb-1">Badge *</label>
-                        <input required type="text" placeholder="💍 Anniversary" value={newTemplate.badge}
-                          onChange={e => setNewTemplate({ ...newTemplate, badge: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-rose-500" />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-1">Description *</label>
-                      <textarea required rows={2} value={newTemplate.description}
-                        onChange={e => setNewTemplate({ ...newTemplate, description: e.target.value })}
-                        className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-rose-500 resize-none" />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-300 mb-2">Sample Reasons</label>
-                      <div className="space-y-2">
-                        {newTemplate.sampleReasons.map((r, i) => (
-                          <input key={i} type="text" placeholder={`Reason ${i + 1}…`} value={r}
-                            onChange={e => updateReason(i, e.target.value)}
-                            className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-rose-500" />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-300 mb-1">Cover Image URL</label>
-                        <input type="url" placeholder="https://…" value={newTemplate.coverImageUrl}
-                          onChange={e => setNewTemplate({ ...newTemplate, coverImageUrl: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-rose-500" />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-300 mb-1">Music Track Name</label>
-                        <input type="text" placeholder="Piano Serenade" value={newTemplate.musicTrack.name}
-                          onChange={e => setNewTemplate({ ...newTemplate, musicTrack: { ...newTemplate.musicTrack, name: e.target.value } })}
-                          className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-rose-500" />
-                      </div>
-                    </div>
-                    <button type="submit" disabled={savingTemplate || !newTemplate.title.trim()}
-                      className="w-full py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl disabled:opacity-50">
-                      {savingTemplate ? 'Saving…' : 'Save Legacy Template'}
-                    </button>
-                  </form>
-                )}
-                {templatesList.length === 0 ? (
-                  <p className="text-slate-500 text-xs text-center py-4">No legacy templates.</p>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {templatesList.map(tpl => (
-                      <div key={tpl.id} className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-                        {tpl.coverImageUrl && (
-                          <div className="h-24 overflow-hidden">
-                            <img src={tpl.coverImageUrl} alt={tpl.title} className="w-full h-full object-cover opacity-70" />
-                          </div>
-                        )}
-                        <div className="p-4 space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-rose-300">{tpl.badge}</span>
-                            <button onClick={() => handleDeleteTemplate(tpl.id)} className="p-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-400 rounded-lg"><Trash2 size={13} /></button>
-                          </div>
-                          <h4 className="font-bold text-white text-sm">{tpl.title}</h4>
-                          <p className="text-[11px] text-slate-400 line-clamp-2">{tpl.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </details>
           </div>
         )}
 
