@@ -109,8 +109,8 @@ function MusicPill({
 }) {
   return (
     <motion.div initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-      className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-white/90 backdrop-blur-md rounded-full shadow-lg px-3 py-1.5 text-xs"
-      style={{ border: `1px solid ${theme.cardBorder}` }}>
+      className="fixed top-4 right-4 z-50 flex items-center gap-2 backdrop-blur-md rounded-full shadow-lg px-3 py-1.5 text-xs"
+      style={{ border: `1px solid ${theme.cardBorder}`, background: theme.chromeBg ?? 'rgba(255,255,255,0.9)' }}>
       <button onClick={onToggle}
         className="w-7 h-7 rounded-full flex items-center justify-center text-white shadow-md transition-all active:scale-95"
         style={{ background: theme.accent }}>
@@ -138,6 +138,17 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
 
   // Filter to only enabled sections
   const sections = template.sections.filter(s => s.enabled !== false);
+
+  // Optional custom font: theme.fontUrl must be a Google Fonts stylesheet.
+  useEffect(() => {
+    const url = template.theme?.fontUrl;
+    if (!url || !/^https:\/\/fonts\.googleapis\.com\//.test(url)) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = url;
+    document.head.appendChild(link);
+    return () => { document.head.removeChild(link); };
+  }, [template.theme?.fontUrl]);
 
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
@@ -185,6 +196,8 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
     : 100;
 
   const currentSection = sections[currentIdx];
+  // hero.showParticles === false hides the floating emoji while the hero is on screen
+  const hideParticles = currentSection?.type === 'hero' && (currentSection as any).showParticles === false;
 
   // Resolve the component from the registry
   const SectionComponent = SECTION_REGISTRY[currentSection?.type ?? ''];
@@ -215,9 +228,9 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
 
       {/* Ambient radial overlay */}
       <div className="fixed inset-0 pointer-events-none z-0"
-        style={{ background: 'radial-gradient(ellipse at top, rgba(255,255,255,0.3) 0%, transparent 70%)' }} />
+        style={{ background: theme.overlay ?? 'radial-gradient(ellipse at top, rgba(255,255,255,0.3) 0%, transparent 70%)' }} />
 
-      <FloatingParticles theme={theme} />
+      {!hideParticles && <FloatingParticles theme={theme} />}
 
       {/* Music pill */}
       {userData.music?.url && (
@@ -231,7 +244,7 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
       {/* Progress bar (hidden on first and last step) */}
       {currentIdx > 0 && currentIdx < sections.length - 1 && (
         <div className="fixed top-0 left-0 right-0 z-40 px-4 pt-2 pb-1 backdrop-blur-md border-b"
-          style={{ background: 'rgba(255,255,255,0.85)', borderColor: theme.cardBorder }}>
+          style={{ background: theme.chromeBg ?? 'rgba(255,255,255,0.85)', borderColor: theme.cardBorder }}>
           <div className="max-w-md mx-auto">
             <div className="flex items-center justify-between text-[10px] font-bold mb-1"
               style={{ color: theme.accent }}>
