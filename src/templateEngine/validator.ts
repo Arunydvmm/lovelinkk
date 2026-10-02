@@ -92,6 +92,19 @@ export function validateTemplateJson(raw: unknown): ValidationResult {
         );
       }
 
+      // variant options (warn only — unknown values fall back to the default look)
+      const VARIANTS: Record<string, [string, string[]]> = {
+        hero:     ['layout',    ['circle', 'banner', 'minimal']],
+        letter:   ['style',     ['card', 'paper', 'minimal']],
+        reasons:  ['cardStyle', ['flip', 'slide', 'fade']],
+        gallery:  ['layout',    ['grid', 'masonry', 'carousel', 'polaroid']],
+        timeline: ['layout',    ['line', 'cards']],
+      };
+      const v = VARIANTS[s.type as string];
+      if (v && s[v[0]] !== undefined && !v[1].includes(s[v[0]] as string)) {
+        warnings.push(`sections[${i}].${v[0]} "${s[v[0]]}" is not supported — valid: ${v[1].join(', ')}.`);
+      }
+
       // Warn if hero is not first
       if (s.type === 'hero' && i !== 0) {
         warnings.push('The "hero" section is recommended as the first section.');
