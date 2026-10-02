@@ -81,6 +81,8 @@ interface BaseSection {
   animation?: AnimationPreset;
   /** Extra CSS classes applied to the section wrapper */
   className?: string;
+  /** Overrides the label of the section's "next" button (e.g. "Read my letter 💌") */
+  nextLabel?: string;
 }
 
 export interface HeroSection extends BaseSection {
