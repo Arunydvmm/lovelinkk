@@ -51,7 +51,9 @@ function LoginRequiredPage({ onNavigate }: { onNavigate: (tab: string) => void }
 export function MainApp() {
   const { user, loading, logout, openAdminGate } = useAuth();
   const [currentTab, setCurrentTab] = useState<string>('home');
-  const [surpriseId, setSurpriseId] = useState<string>('priya-kabir');
+  const [surpriseId, setSurpriseId] = useState<string>('');
+  // Template chosen in the gallery (?template=<id> on /create and /edit/:id)
+  const [templateId, setTemplateId] = useState<string>('');
   // viewToken extracted from ?token= query param for recipient view
   const [viewToken, setViewToken] = useState<string>('');
 
@@ -73,10 +75,12 @@ export function MainApp() {
       } else if (path === '/dashboard' || path === '/my-surprises') {
         setCurrentTab('dashboard');
       } else if (path === '/create') {
+        setTemplateId(params.get('template') || '');
         setCurrentTab('create');
       } else if (path.startsWith('/edit/')) {
         const id = path.split('/edit/')[1];
         setSurpriseId(id);
+        setTemplateId(params.get('template') || '');
         setCurrentTab('edit');
       } else if (path === '/admin') {
         setCurrentTab('admin');
@@ -101,16 +105,20 @@ export function MainApp() {
     }
   }, [currentTab, user, openAdminGate]);
 
-  const navigateTo = (tab: string, id?: string, token?: string) => {
+  const navigateTo = (tab: string, id?: string, token?: string, opts?: { template?: string }) => {
     setCurrentTab(tab);
     if (id) setSurpriseId(id);
     if (token !== undefined) setViewToken(token);
+    // The template choice only lives on create/edit; any other navigation clears it.
+    const tpl = tab === 'create' || tab === 'edit' ? (opts?.template ?? '') : '';
+    setTemplateId(tpl);
+    const tplQuery = tpl ? `?template=${encodeURIComponent(tpl)}` : '';
 
     let newPath = '/';
     if (tab === 'home') newPath = '/';
     else if (tab === 'dashboard') newPath = '/dashboard';
-    else if (tab === 'create') newPath = '/create';
-    else if (tab === 'edit' && id) newPath = `/edit/${id}`;
+    else if (tab === 'create') newPath = `/create${tplQuery}`;
+    else if (tab === 'edit' && id) newPath = `/edit/${id}${tplQuery}`;
     else if (tab === 's' && id) {
       newPath = `/s/${id}${token ? `?token=${token}` : ''}`;
     }
@@ -143,11 +151,11 @@ export function MainApp() {
           ) : currentTab === 'create' ? (
             isGuestUser
               ? <LoginRequiredPage onNavigate={navigateTo} />
-              : <WizardPage onNavigate={navigateTo} />
+              : <WizardPage key={`create-${templateId}`} initialTemplateId={templateId} onNavigate={navigateTo} />
           ) : currentTab === 'edit' ? (
             isGuestUser
               ? <LoginRequiredPage onNavigate={navigateTo} />
-              : <WizardPage editSurpriseId={surpriseId} onNavigate={navigateTo} />
+              : <WizardPage key={`edit-${surpriseId}`} editSurpriseId={surpriseId} initialTemplateId={templateId} onNavigate={navigateTo} />
           ) : currentTab === 's' ? (
             <SurpriseViewPage
               surpriseId={surpriseId}
