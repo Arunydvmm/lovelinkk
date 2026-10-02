@@ -149,6 +149,8 @@ export interface SurpriseData {
   quotes?: QuoteEntry[];
   enabledModules?: InteractiveModuleId[];
   countdownDate?: string;
+  /** FullTemplate.id chosen in the wizard; empty/undefined = built-in default template */
+  templateId?: string;
 }
 
 export interface AdminStats {
