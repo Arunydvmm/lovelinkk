@@ -27,6 +27,8 @@ export interface SectionProps {
   onNext: () => void;
   onBack: () => void;
   onReplay: () => void;
+  /** Which way the visitor was travelling when this section mounted. Used by self-skipping sections. */
+  direction?: 'forward' | 'back';
   isFirst: boolean;
   isLast: boolean;
   audioRef: React.MutableRefObject<HTMLAudioElement | null>;
@@ -141,7 +143,7 @@ export function GiftOpeningSectionRenderer({ config, userData, theme, onNext, on
     <motion.div key="gift" {...anim} transition={{ duration: 0.5 }}
       className="flex flex-col items-center text-center py-4">
       <CuteCatGift partnerName={userData.partnerName} onOpenGift={onNext} />
-      <NavRow onBack={onBack} onNext={onNext} nextLabel="Skip →" theme={theme} />
+      <NavRow onBack={onBack} onNext={onNext} nextLabel={cfg.nextLabel ?? "Skip →"} theme={theme} />
     </motion.div>
   );
 }
@@ -190,7 +192,7 @@ export function LetterSectionRenderer({ config, userData, theme, onNext, onBack 
         </div>
       </div>
 
-      <NavRow onBack={onBack} onNext={onNext} nextLabel="Reasons Why I Love You →" theme={theme} />
+      <NavRow onBack={onBack} onNext={onNext} nextLabel={cfg.nextLabel ?? "Reasons Why I Love You →"} theme={theme} />
     </motion.div>
   );
 }
@@ -285,7 +287,7 @@ export function ReasonsSectionRenderer({ config, userData, theme, onNext, onBack
           <button onClick={onNext}
             className="flex-1 py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-1 shadow-md min-h-[48px] text-white transition-all"
             style={{ background: theme.accent }}>
-            See Memories <ChevronRight size={16} />
+            {cfg.nextLabel ?? 'See Memories'} <ChevronRight size={16} />
           </button>
         )}
       </div>
@@ -345,7 +347,7 @@ export function GallerySectionRenderer({ config, userData, theme, onNext, onBack
         ))}
       </div>
 
-      <NavRow onBack={onBack} onNext={onNext} nextLabel="Music 🎵 →" theme={theme} />
+      <NavRow onBack={onBack} onNext={onNext} nextLabel={cfg.nextLabel ?? 'Music 🎵 →'} theme={theme} />
 
       {/* Lightbox */}
       <AnimatePresence>
@@ -435,23 +437,29 @@ export function TimelineSectionRenderer({ config, userData, theme, onNext, onBac
         ))}
       </div>
 
-      <NavRow onBack={onBack} onNext={onNext} nextLabel="Gallery 📸 →" theme={theme} />
+      <NavRow onBack={onBack} onNext={onNext} nextLabel={cfg.nextLabel ?? "Gallery 📸 →"} theme={theme} />
     </motion.div>
   );
 }
 
 // ─── QUOTES ───────────────────────────────────────────────────────────────────
 
-export function QuotesSectionRenderer({ config, userData, theme, onNext, onBack }: SectionProps) {
+export function QuotesSectionRenderer({ config, userData, theme, onNext, onBack, direction }: SectionProps) {
   const cfg = config as QuotesSection;
   const anim = getAnim(cfg.animation ?? 'fadeUp');
   const allQuotes = userData.quotes ?? [];
   const filtered = cfg.filter ? allQuotes.filter(q => cfg.filter!.includes(q.type)) : allQuotes;
 
-  if (filtered.length === 0) {
-    onNext(); // no quotes — skip this section automatically
-    return null;
-  }
+  const isEmpty = filtered.length === 0;
+
+  // No quotes — skip this section automatically (in the direction the visitor was travelling).
+  // Must run in an effect: calling onNext()/onBack() during render updates the parent mid-render.
+  useEffect(() => {
+    if (!isEmpty) return;
+    if (direction === 'back') onBack(); else onNext();
+  }, [isEmpty]);
+
+  if (isEmpty) return null;
 
   const typeLabel: Record<string, string> = {
     'quote': '💬 Quote', 'inside-joke': '😄 Inside Joke',
@@ -495,7 +503,7 @@ export function QuotesSectionRenderer({ config, userData, theme, onNext, onBack 
         ))}
       </div>
 
-      <NavRow onBack={onBack} onNext={onNext} nextLabel="Music 🎵 →" theme={theme} />
+      <NavRow onBack={onBack} onNext={onNext} nextLabel={cfg.nextLabel ?? "Music 🎵 →"} theme={theme} />
     </motion.div>
   );
 }
@@ -567,7 +575,7 @@ export function MusicSectionRenderer({ config, userData, theme, onNext, onBack, 
         )}
       </div>
 
-      <NavRow onBack={onBack} onNext={onNext} nextLabel="Certificate 🏆 →" theme={theme} />
+      <NavRow onBack={onBack} onNext={onNext} nextLabel={cfg.nextLabel ?? "Certificate 🏆 →"} theme={theme} />
     </motion.div>
   );
 }
@@ -605,14 +613,14 @@ export function CertificateSectionRenderer({ config, userData, theme, onNext, on
         allowDownload={cfg.allowDownload !== false}
       />
 
-      <NavRow onBack={onBack} onNext={onNext} nextLabel="Final Surprise 🎁 →" theme={theme} />
+      <NavRow onBack={onBack} onNext={onNext} nextLabel={cfg.nextLabel ?? "Final Surprise 🎁 →"} theme={theme} />
     </motion.div>
   );
 }
 
 // ─── COUNTDOWN ────────────────────────────────────────────────────────────────
 
-export function CountdownSectionRenderer({ config, userData, theme, onNext, onBack }: SectionProps) {
+export function CountdownSectionRenderer({ config, userData, theme, onNext, onBack, direction }: SectionProps) {
   const cfg = config as CountdownSection;
   const anim = getAnim(cfg.animation ?? 'fadeUp');
   const targetDate = userData.countdownDate ? new Date(userData.countdownDate) : null;
@@ -620,7 +628,7 @@ export function CountdownSectionRenderer({ config, userData, theme, onNext, onBa
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
 
   useEffect(() => {
-    if (!targetDate) return;
+    if (!targetDate || isNaN(targetDate.getTime())) return;
     const tick = () => {
       const diff = targetDate.getTime() - Date.now();
       if (diff <= 0) { setTimeLeft({ days: 0, hours: 0, mins: 0, secs: 0 }); return; }
@@ -635,7 +643,14 @@ export function CountdownSectionRenderer({ config, userData, theme, onNext, onBa
     return () => clearInterval(id);
   }, [userData.countdownDate]);
 
-  if (!targetDate) { onNext(); return null; }
+  // No (or invalid) target date — skip this section automatically. Effect, not render-time call.
+  const hasTarget = !!targetDate && !isNaN(targetDate.getTime());
+  useEffect(() => {
+    if (hasTarget) return;
+    if (direction === 'back') onBack(); else onNext();
+  }, [hasTarget]);
+
+  if (!hasTarget) return null;
 
   return (
     <motion.div key="countdown" {...anim} transition={{ duration: 0.5 }}
@@ -669,7 +684,7 @@ export function CountdownSectionRenderer({ config, userData, theme, onNext, onBa
         ))}
       </div>
 
-      <NavRow onBack={onBack} onNext={onNext} theme={theme} />
+      <NavRow onBack={onBack} onNext={onNext} nextLabel={cfg.nextLabel} theme={theme} />
     </motion.div>
   );
 }
