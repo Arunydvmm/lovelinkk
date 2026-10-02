@@ -59,7 +59,7 @@ export function validateTemplateJson(raw: unknown): ValidationResult {
     const validTypes = new Set([
       'hero', 'letter', 'reasons', 'gallery', 'timeline',
       'quotes', 'music', 'certificate', 'countdown', 'ending',
-      'video', 'gift-opening',
+      'gift-opening',
     ]);
     const seenIds = new Set<string>();
     (obj.sections as unknown[]).forEach((sec, i) => {
