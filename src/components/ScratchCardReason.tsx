@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Lock, Sparkles, Hand, Check } from 'lucide-react';
 
 interface ScratchCardReasonProps {
