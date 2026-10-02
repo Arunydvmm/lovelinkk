@@ -62,6 +62,9 @@ export const SurpriseViewPage: React.FC<SurpriseViewPageProps> = ({
                   setTemplateSpec(ft.templateJson as unknown as TemplateSpec);
                   return;
                 }
+                console.warn('[LoveLink] Template JSON invalid — using default template.', validation.errors);
+              } else {
+                console.warn('[LoveLink] Template has no templateJson — using default template.');
               }
             }
           } catch { /* fall through */ }
